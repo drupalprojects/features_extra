@@ -152,7 +152,7 @@ function fe_nodequeue_form_alter(&$form, $form_state, $form_id) {
     $form['#submit'][] = 'fe_nodequeue_machine_name_submit';
   }
   // Delete a nodequeue.
-  elseif ($form_id == 'nodequeue_admin_delete' && user_access('administer features')) {
+  elseif ($form_id == 'block_box_delete') {
     $form['#submit'][] = 'fe_nodequeue_machine_name_delete';
   }
 }

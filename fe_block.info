@@ -1,0 +1,9 @@
+; $Id$
+name = "FE block"
+description = "Build blocks and block settings as features."
+package = "Features extra"
+core = "6.x"
+
+dependencies[] = block
+dependencies[] = features
+dependencies[] = ctools

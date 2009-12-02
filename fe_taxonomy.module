@@ -174,7 +174,7 @@ function fe_taxonomy_form_alter(&$form, $form_state, $form_id) {
  * Implementation of hook_taxonomy().
  */
 function fe_taxonomy_taxonomy($op, $type, $array = NULL) {
-  if ($type != 'vocabulary') {
+  if ($type != 'vocabulary' || !user_access('administer features')) {
     return;
   }
 

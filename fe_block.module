@@ -271,27 +271,41 @@ function fe_block_boxes_features_revert($module_name = NULL) {
  * Implementation of hook_form_alter().
  */
 function fe_block_form_alter(&$form, $form_state, $form_id) {
-  if ($form_id == 'block_admin_configure' && $form['module']['#value'] == 'block' && user_access('administer features')) {
-    // Machine name.
-    $table = 'fe_block_boxes';
+  $default_values = array();
+
+  if ($form_id == 'block_add_block_form' && $form['module']['#value'] == 'block' && user_access('administer features')) {
+    $default_values['machine_name'] = '';
+    $default_values['bid'] = 0;
+  }
+  elseif ($form_id == 'block_admin_configure' && $form['module']['#value'] == 'block' && user_access('administer features')) {
     $bid = $form['delta']['#value'];
     $machine_name = _fe_block_get_machine_name($bid);
-    $form['block_settings']['machine_name'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Machine name'),
-      '#default_value' => empty($machine_name) ? '' : $machine_name,
-      '#maxlength' => 32,
-      '#description' => t('Give the block a machine name to make it exportable with "!features" module.', array('!features' => l('Features', 'http://drupal.org/project/features'))),
-      '#weight' => -20,
-    );
-
-    // Validate machine name.
-    $form['#validate'][] = 'fe_block_machine_name_validate';
-    $form['#submit'][] = 'fe_block_machine_name_submit';
+    $default_values['machine_name'] = empty($machine_name) ? '' : $machine_name;
+    $default_values['bid'] = $bid;
   }
   // Delete a block.
   elseif ($form_id == 'block_box_delete') {
     $form['#submit'][] = 'fe_block_machine_name_delete';
+  }
+
+  // Add & edit
+  if (!empty($default_values)) {
+    $form['block_settings']['machine_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Machine name'),
+      '#default_value' => $default_values['machine_name'],
+      '#maxlength' => 32,
+      '#description' => t('Give the block a machine name to make it exportable with "!features" module.', array('!features' => l('Features', 'http://drupal.org/project/features'))),
+      '#weight' => -20,
+    );
+    $form['bid'] = array(
+      '#type' => 'value',
+      '#value' => $default_values['bid'],
+    );
+
+    // Validate & submit.
+    $form['#validate'][] = 'fe_block_machine_name_validate';
+    $form['#submit'][] = 'fe_block_machine_name_submit';
   }
 }
 
@@ -315,8 +329,15 @@ function fe_block_machine_name_validate($form, &$form_state) {
  * Save machine name.
  */
 function fe_block_machine_name_submit($form, &$form_state) {
+  // Insert
+  if (empty($form_state['values']['bid'])) {
+    $form_state['values']['bid'] = db_result(db_query("SELECT bid FROM {boxes} WHERE info = '%s'", $form_state['values']['info']));
+  }
+  if (empty($form_state['values']['bid'])) {
+    return;
+  }
+
   $table = 'fe_block_boxes';
-  $form_state['values']['bid'] = $form_state['values']['delta'];
   db_query("DELETE FROM {{$table}} WHERE bid = %d", $form_state['values']['bid']);
   if (!empty($form_state['values']['machine_name'])) {
     drupal_write_record($table, $form_state['values']);

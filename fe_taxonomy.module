@@ -222,6 +222,22 @@ function fe_taxonomy_machine_name_validate($form, &$form_state) {
  */
 
 /**
+ * Return the vocabulary object matching a vocabulary machine name.
+ */
+function fe_taxonomy_vocabulary_load($machine_name) {
+  $table = 'fe_taxonomy_vocabulary';
+  $vid = db_result(db_query("SELECT vid FROM {$table} WHERE machine_name = '%s'", $machine_name));
+  if (!empty($vid)) {
+    $vocab = taxonomy_vocabulary_load($vid);
+    $vocab->machine_name = $machine_name;
+  }
+  else {
+    $vocab = FALSE;
+  }
+  return $vocab;
+}
+
+/**
  * Copied from taxonomy_get_vocabularies(), modified query.
  *
  * Return an array of all vocabulary objects.

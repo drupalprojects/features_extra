@@ -83,6 +83,9 @@ function fe_block_settings_features_export($data, &$export, $module_name = '') {
  */
 function fe_block_settings_features_export_render($module_name = '', $data) {
   global $custom_theme, $theme_key;
+  init_theme();
+  $backup = array($custom_theme, $theme_key);
+
   $component = 'fe_block_settings';
   $default_hook = 'default_'. $component;
   $theme_default = variable_get('theme_default', 'garland');
@@ -114,6 +117,11 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
             $block['machine_name'] = _fe_block_get_machine_name($block['delta']);
             unset($block['delta']);
           }
+          // Region.
+          if ($block['region'] == BLOCK_REGION_NONE) {
+            $block['status'] = 0;
+            $block['region'] = '';
+          }
 
           $code[] = '  $theme[\''. $block_id .'\'] = '. features_var_export($block, '  ') .';';
           $code[] = '';
@@ -136,6 +144,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
   $code[] = '  return $export;';
   $code = implode("\n", $code);
 
+  list($custom_theme, $theme_key) = $backup;
   return array($default_hook => $code);
 }
 

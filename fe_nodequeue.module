@@ -24,11 +24,23 @@ function fe_nodequeue_features_api() {
 function fe_nodequeue_queue_features_export_options() {
   $table = 'fe_nodequeue_queue';
   $options = array();
+
+  // Defaults.
+  $schema = ctools_export_get_schema($table);
+  $export = $schema['export'];
+  $defaults = _ctools_export_get_defaults($table, $export);
+  foreach ($defaults as $obj) {
+    $options[$obj->machine_name] = t('@name [@machine_name]', array('@name' => $obj->title, '@machine_name' => $obj->machine_name));
+  }
+
+  // Normals.
   $query = "SELECT * FROM {{$table}} {$table} INNER JOIN {nodequeue_queue} v ON v.qid = {$table}.qid ORDER BY v.qid ASC";
   $result = db_query($query);
   while ($obj = db_fetch_object($result)) {
     $options[$obj->machine_name] = t('@name [@machine_name]', array('@name' => $obj->title, '@machine_name' => $obj->machine_name));
   }
+
+  ksort($options);
   return $options;
 }
 
@@ -63,6 +75,10 @@ function fe_nodequeue_queue_features_export_render($module_name = '', $data) {
   $schema = ctools_export_get_schema($component);
   $objects = ctools_export_load_object($component);
 
+  // Defaults.
+  $export = $schema['export'];
+  $defaults = _ctools_export_get_defaults($table, $export);
+
   $code = array();
   $code[] = '  $export = array();';
   $code[] = '';
@@ -74,6 +90,15 @@ function fe_nodequeue_queue_features_export_render($module_name = '', $data) {
     // Load nodequeue_queue.
     if (!empty($object->qid)) {
       $nodequeue_queue = nodequeue_load($object->qid);
+
+      // Default.
+      if (empty($nodequeue_queue)) {
+        if (empty($defaults[$object->machine_name])) {
+          break;
+        }
+        $nodequeue_queue = $defaults[$object->machine_name];
+      }
+
       $additions = (array) $nodequeue_queue;
       unset($additions['qid']);
       // TODO: sub
@@ -93,6 +118,32 @@ function fe_nodequeue_queue_features_export_render($module_name = '', $data) {
 }
 
 /**
+ * Implementation of hook_features_rebuild().
+ */
+function fe_nodequeue_queue_features_rebuild($module_name = NULL) {
+  $table = 'fe_nodequeue_queue';
+  $defaults = features_get_default($module_name, $table);
+
+  // Rebuild.
+  foreach ($defaults as $object) {
+    if (empty($object->machine_name)) {
+      continue;
+    }
+
+    $qid = db_result(db_query("SELECT qid FROM {{$table}} WHERE machine_name = '%s'", $object->machine_name));
+    if (empty($qid) || !($nodequeue_queue = nodequeue_load($qid))) {
+      $result = _fe_nodequeue_save_queue((array) $object);
+      if (!empty($result['qid'])) {
+        db_query("DELETE FROM {{$table}} WHERE qid = %d OR machine_name = '%s'", $result['qid'], $object->machine_name);
+        db_query("INSERT INTO {{$table}} (qid, machine_name) VALUES (%d, '%s')", $result['qid'], $object->machine_name);
+      }
+    }
+  }
+
+  return TRUE;
+}
+
+/**
  * Implementation of hook_features_revert().
  */
 function fe_nodequeue_queue_features_revert($module_name = NULL) {
@@ -106,10 +157,10 @@ function fe_nodequeue_queue_features_revert($module_name = NULL) {
     }
 
     $qid = db_result(db_query("SELECT qid FROM {{$table}} WHERE machine_name = '%s'", $object->machine_name));
-    if (empty($qid)) {
+    if (empty($qid) || !($nodequeue_queue = nodequeue_load($qid))) {
       $result = _fe_nodequeue_save_queue((array) $object);
       if (!empty($result['qid'])) {
-        db_query("DELETE FROM {{$table}} WHERE qid = %d", $result['qid']);
+        db_query("DELETE FROM {{$table}} WHERE qid = %d OR machine_name = '%s'", $result['qid'], $object->machine_name);
         db_query("INSERT INTO {{$table}} (qid, machine_name) VALUES (%d, '%s')", $result['qid'], $object->machine_name);
       }
     }
@@ -152,7 +203,7 @@ function fe_nodequeue_form_alter(&$form, $form_state, $form_id) {
     $form['#submit'][] = 'fe_nodequeue_machine_name_submit';
   }
   // Delete a nodequeue.
-  elseif ($form_id == 'block_box_delete') {
+  elseif ($form_id == 'nodequeue_admin_delete') {
     $form['#submit'][] = 'fe_nodequeue_machine_name_delete';
   }
 }

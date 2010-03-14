@@ -75,10 +75,6 @@ function fe_nodequeue_queue_features_export_render($module_name = '', $data) {
   $schema = ctools_export_get_schema($component);
   $objects = ctools_export_load_object($component);
 
-  // Defaults.
-  $export = $schema['export'];
-  $defaults = _ctools_export_get_defaults($table, $export);
-
   $code = array();
   $code[] = '  $export = array();';
   $code[] = '';
@@ -90,15 +86,6 @@ function fe_nodequeue_queue_features_export_render($module_name = '', $data) {
     // Load nodequeue_queue.
     if (!empty($object->qid)) {
       $nodequeue_queue = nodequeue_load($object->qid);
-
-      // Default.
-      if (empty($nodequeue_queue)) {
-        if (empty($defaults[$object->machine_name])) {
-          break;
-        }
-        $nodequeue_queue = $defaults[$object->machine_name];
-      }
-
       $additions = (array) $nodequeue_queue;
       unset($additions['qid']);
       // TODO: sub

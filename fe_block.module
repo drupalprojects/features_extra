@@ -233,7 +233,7 @@ function fe_block_boxes_features_export_render($module_name = '', $data) {
     $object = $objects[$machine_name];
 
     $additions = array();
-    // Load vocabulary.
+    // Load box.
     if (!empty($object->bid)) {
       $box = block_box_get($object->bid);
       $additions = (array) $box;

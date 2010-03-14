@@ -34,11 +34,23 @@ function fe_taxonomy_features_api() {
 function fe_taxonomy_vocabulary_features_export_options() {
   $table = 'fe_taxonomy_vocabulary';
   $options = array();
+
+  // Defaults.
+  $schema = ctools_export_get_schema($table);
+  $export = $schema['export'];
+  $defaults = _ctools_export_get_defaults($table, $export);
+  foreach ($defaults as $obj) {
+    $options[$obj->machine_name] = t('@name [@machine_name]', array('@name' => $obj->name, '@machine_name' => $obj->machine_name));
+  }
+
+  // Normals.
   $query = "SELECT * FROM {{$table}} {$table} INNER JOIN {vocabulary} v ON v.vid = {$table}.vid ORDER BY v.vid ASC";
   $result = db_query($query);
   while ($obj = db_fetch_object($result)) {
     $options[$obj->machine_name] = t('@name [@machine_name]', array('@name' => $obj->name, '@machine_name' => $obj->machine_name));
   }
+
+  ksort($options);
   return $options;
 }
 
@@ -101,11 +113,43 @@ function fe_taxonomy_vocabulary_features_export_render($module_name = '', $data)
 }
 
 /**
+ * Implementation of hook_features_rebuild().
+ */
+function fe_taxonomy_vocabulary_features_rebuild($module_name = NULL) {
+  $table = 'fe_taxonomy_vocabulary';
+  $defaults = features_get_default($module_name, $table);
+  if (empty($defaults)) {
+    return;
+  }
+
+  // Rebuild.
+  foreach ($defaults as $object) {
+    if (empty($object->machine_name)) {
+      continue;
+    }
+
+    $vid = db_result(db_query("SELECT vid FROM {{$table}} WHERE machine_name = '%s'", $object->machine_name));
+    if (empty($vid) || !($vocab = taxonomy_vocabulary_load($vid))) {
+      $result = _fe_taxonomy_save_vocabulary((array) $object);
+      if (!empty($result['vid'])) {
+        db_query("DELETE FROM {{$table}} WHERE vid = %d OR machine_name = '%s'", $result['vid'], $object->machine_name);
+        db_query("INSERT INTO {{$table}} (vid, machine_name) VALUES (%d, '%s')", $result['vid'], $object->machine_name);
+      }
+    }
+  }
+
+  return TRUE;
+}
+
+/**
  * Implementation of hook_features_revert().
  */
 function fe_taxonomy_vocabulary_features_revert($module_name = NULL) {
   $table = 'fe_taxonomy_vocabulary';
   $defaults = features_get_default($module_name, $table);
+  if (empty($defaults)) {
+    return;
+  }
 
   // Revert.
   foreach ($defaults as $object) {
@@ -114,10 +158,10 @@ function fe_taxonomy_vocabulary_features_revert($module_name = NULL) {
     }
 
     $vid = db_result(db_query("SELECT vid FROM {{$table}} WHERE machine_name = '%s'", $object->machine_name));
-    if (empty($vid)) {
+    if (empty($vid) || !($vocab = taxonomy_vocabulary_load($vid))) {
       $result = _fe_taxonomy_save_vocabulary((array) $object);
       if (!empty($result['vid'])) {
-        db_query("DELETE FROM {{$table}} WHERE vid = %d", $result['vid']);
+        db_query("DELETE FROM {{$table}} WHERE vid = %d OR machine_name = '%s'", $result['vid'], $object->machine_name);
         db_query("INSERT INTO {{$table}} (vid, machine_name) VALUES (%d, '%s')", $result['vid'], $object->machine_name);
       }
     }

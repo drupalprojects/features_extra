@@ -180,11 +180,23 @@ function fe_block_settings_features_revert($module_name = NULL) {
 function fe_block_boxes_features_export_options() {
   $table = 'fe_block_boxes';
   $options = array();
+
+  // Defaults.
+  $schema = ctools_export_get_schema($table);
+  $export = $schema['export'];
+  $defaults = _ctools_export_get_defaults($table, $export);
+  foreach ($defaults as $obj) {
+    $options[$obj->machine_name] = t('@name [@machine_name]', array('@name' => $obj->info, '@machine_name' => $obj->machine_name));
+  }
+
+  // Normals.
   $query = "SELECT * FROM {{$table}} {$table} INNER JOIN {boxes} b ON b.bid = {$table}.bid ORDER BY b.bid ASC";
   $result = db_query($query);
   while ($obj = db_fetch_object($result)) {
-    $options[$obj->machine_name] = t('@name [@machine_name]', array('@name' => $obj->name, '@machine_name' => $obj->machine_name));
+    $options[$obj->machine_name] = t('@name [@machine_name]', array('@name' => $obj->info, '@machine_name' => $obj->machine_name));
   }
+
+  ksort($options);
   return $options;
 }
 
@@ -243,11 +255,43 @@ function fe_block_boxes_features_export_render($module_name = '', $data) {
 }
 
 /**
+ * Implementation of hook_features_rebuild().
+ */
+function fe_block_boxes_features_rebuild($module_name = NULL) {
+  $table = 'fe_block_boxes';
+  $defaults = features_get_default($module_name, $table);
+  if (empty($defaults)) {
+    return;
+  }
+
+  // Rebuild.
+  foreach ($defaults as $object) {
+    if (empty($object->machine_name)) {
+      continue;
+    }
+
+    $bid = _fe_block_get_bid($object->machine_name);
+    if (empty($bid) || !($box = block_box_get($bid))) {
+      $result = _fe_block_save_box((array) $object);
+      if (!empty($result['bid'])) {
+        db_query("DELETE FROM {{$table}} WHERE bid = %d OR machine_name = '%s'", $result['bid'], $object->machine_name);
+        db_query("INSERT INTO {{$table}} (bid, machine_name) VALUES (%d, '%s')", $result['bid'], $object->machine_name);
+      }
+    }
+  }
+
+  return TRUE;
+}
+
+/**
  * Implementation of hook_features_revert().
  */
 function fe_block_boxes_features_revert($module_name = NULL) {
   $table = 'fe_block_boxes';
   $defaults = features_get_default($module_name, $table);
+  if (empty($defaults)) {
+    return;
+  }
 
   // Revert.
   foreach ($defaults as $object) {
@@ -256,10 +300,10 @@ function fe_block_boxes_features_revert($module_name = NULL) {
     }
 
     $bid = _fe_block_get_bid($object->machine_name);
-    if (empty($bid)) {
+    if (empty($bid) || !($box = block_box_get($bid))) {
       $result = _fe_block_save_box((array) $object);
       if (!empty($result['bid'])) {
-        db_query("DELETE FROM {{$table}} WHERE bid = %d", $result['bid']);
+        db_query("DELETE FROM {{$table}} WHERE bid = %d OR machine_name = '%s'", $result['bid'], $object->machine_name);
         db_query("INSERT INTO {{$table}} (bid, machine_name) VALUES (%d, '%s')", $result['bid'], $object->machine_name);
       }
     }

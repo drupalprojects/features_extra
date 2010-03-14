@@ -123,6 +123,9 @@ function fe_nodequeue_queue_features_export_render($module_name = '', $data) {
 function fe_nodequeue_queue_features_rebuild($module_name = NULL) {
   $table = 'fe_nodequeue_queue';
   $defaults = features_get_default($module_name, $table);
+  if (empty($defaults)) {
+    return;
+  }
 
   // Rebuild.
   foreach ($defaults as $object) {
@@ -149,6 +152,9 @@ function fe_nodequeue_queue_features_rebuild($module_name = NULL) {
 function fe_nodequeue_queue_features_revert($module_name = NULL) {
   $table = 'fe_nodequeue_queue';
   $defaults = features_get_default($module_name, $table);
+  if (empty($defaults)) {
+    return;
+  }
 
   // Revert.
   foreach ($defaults as $object) {

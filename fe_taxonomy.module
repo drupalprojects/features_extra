@@ -227,9 +227,11 @@ function fe_taxonomy_taxonomy($op, $type, $array = NULL) {
   switch ($op) {
     case 'insert':
     case 'update':
-      db_query("DELETE FROM {{$table}} WHERE vid = %d", $array['vid']);
-      if (!empty($array['machine_name'])) {
-        drupal_write_record($table, $array);
+      if (isset($array['machine_name'])) {
+        db_query("DELETE FROM {{$table}} WHERE vid = %d", $array['vid']);
+        if (!empty($array['machine_name'])) {
+          drupal_write_record($table, $array);
+        }
       }
       if (!empty($array['vocab_module']) && $array['vocab_module'] != 'taxonomy') {
         $values = array('vid' => $array['vid'], 'module' => $array['vocab_module']);

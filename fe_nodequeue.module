@@ -51,6 +51,19 @@ function fe_nodequeue_queue_features_export($data, &$export, $module_name = '') 
   $pipe = array();
   $export['dependencies']['fe_nodequeue'] = 'fe_nodequeue';
 
+  // Collect a nodequeue owner to module map.
+  $map = array();
+  $modules = module_implements('nodequeue_info');
+  foreach ($modules as $module) {
+    $callback = $module .'_nodequeue_info';
+    $info = call_user_func($callback);
+    if (is_array($info)) {
+      foreach ($info as $_key => $_data) {
+        $map[$_key] = $module;
+      }
+    }
+  }
+
   $table = 'fe_nodequeue_queue';
   // Add the components
   foreach ($data as $object_name) {
@@ -58,8 +71,8 @@ function fe_nodequeue_queue_features_export($data, &$export, $module_name = '') 
 
     // Add dependency
     $queue_owner = db_result(db_query("SELECT queue.owner FROM {{$table}} {$table} INNER JOIN {nodequeue_queue} queue ON queue.qid = {$table}.qid WHERE {$table}.machine_name = '%s'", $object_name));
-    if (!empty($queue_owner) && !in_array($queue_owner, array('nodequeue', 'fe_nodequeue'))) {
-      $export['dependencies'][$queue_owner] = $queue_owner;
+    if (!empty($queue_owner) && !empty($map[$queue_owner])) {
+      $export['dependencies'][$map[$queue_owner]] = $map[$queue_owner];
     }
   }
 

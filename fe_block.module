@@ -154,7 +154,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
 function fe_block_settings_features_revert($module_name = NULL) {
   global $custom_theme, $theme_key;
   $component = 'fe_block_settings';
-  $defaults = features_get_default($module_name, $component);
+  $defaults = features_get_default($component, $module_name);
 
   // Revert.
   foreach ($defaults as $_theme_key => $theme) {

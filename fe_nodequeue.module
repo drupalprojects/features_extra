@@ -93,23 +93,24 @@ function fe_nodequeue_queue_features_export_render($module_name = '', $data) {
   $code[] = '';
   foreach ($data as $machine_name) {
     // The object to be exported.
-    $object = $objects[$machine_name];
+    if ($object = $objects[$machine_name]) {
 
-    $additions = array();
-    // Load nodequeue_queue.
-    if (!empty($object->qid)) {
-      $nodequeue_queue = nodequeue_load($object->qid);
-      $additions = (array) $nodequeue_queue;
-      unset($additions['qid']);
-      // TODO: sub
-      unset($additions['subqueues']);
+      $additions = array();
+      // Load nodequeue_queue.
+      if (!empty($object->qid)) {
+        $nodequeue_queue = nodequeue_load($object->qid);
+        $additions = (array) $nodequeue_queue;
+        unset($additions['qid']);
+        // TODO: sub
+        unset($additions['subqueues']);
+      }
+
+      // Code.
+      $identifier = $schema['export']['identifier'];
+      $code[] = ctools_export_object($component, $object, '  ', $identifier, $additions);
+      $code[] = '  $export[\''. $machine_name .'\'] = $'. $identifier .';';
+      $code[] = '';
     }
-
-    // Code.
-    $identifier = $schema['export']['identifier'];
-    $code[] = ctools_export_object($component, $object, '  ', $identifier, $additions);
-    $code[] = '  $export[\''. $machine_name .'\'] = $'. $identifier .';';
-    $code[] = '';
   }
   $code[] = '  return $export;';
   $code = implode("\n", $code);

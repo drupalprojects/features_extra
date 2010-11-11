@@ -90,21 +90,22 @@ function fe_taxonomy_vocabulary_features_export_render($module_name = '', $data)
   $code[] = '';
   foreach ($data as $machine_name) {
     // The object to be exported.
-    $object = $objects[$machine_name];
+    if ($object = $objects[$machine_name]) {
 
-    $additions = array();
-    // Load vocabulary.
-    if (!empty($object->vid)) {
-      $vocabulary = taxonomy_vocabulary_load($object->vid);
-      $additions = (array) $vocabulary;
-      unset($additions['vid']);
+      $additions = array();
+      // Load vocabulary.
+      if (!empty($object->vid)) {
+        $vocabulary = taxonomy_vocabulary_load($object->vid);
+        $additions = (array) $vocabulary;
+        unset($additions['vid']);
+      }
+
+      // Code.
+      $identifier = $schema['export']['identifier'];
+      $code[] = ctools_export_object($component, $object, '  ', $identifier, $additions);
+      $code[] = '  $export[\''. $machine_name .'\'] = $'. $identifier .';';
+      $code[] = '';
     }
-
-    // Code.
-    $identifier = $schema['export']['identifier'];
-    $code[] = ctools_export_object($component, $object, '  ', $identifier, $additions);
-    $code[] = '  $export[\''. $machine_name .'\'] = $'. $identifier .';';
-    $code[] = '';
   }
   $code[] = '  return $export;';
   $code = implode("\n", $code);

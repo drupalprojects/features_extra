@@ -154,7 +154,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
 function fe_block_settings_features_revert($module_name = NULL) {
   global $custom_theme, $theme_key;
   $component = 'fe_block_settings';
-  $defaults = features_get_default($component, $module_name);
+  $defaults = features_get_default($module_name, $component);
 
   // Revert.
   foreach ($defaults as $_theme_key => $theme) {
@@ -260,7 +260,7 @@ function fe_block_boxes_features_export_render($module_name = '', $data) {
  */
 function fe_block_boxes_features_rebuild($module_name = NULL) {
   $table = 'fe_block_boxes';
-  $defaults = features_get_default($module_name, $table);
+  $defaults = features_get_default($table,$module_name );
   if (empty($defaults)) {
     return;
   }
@@ -289,7 +289,7 @@ function fe_block_boxes_features_rebuild($module_name = NULL) {
  */
 function fe_block_boxes_features_revert($module_name = NULL) {
   $table = 'fe_block_boxes';
-  $defaults = features_get_default($module_name, $table);
+  $defaults = features_get_default($table,$module_name);
   if (empty($defaults)) {
     return;
   }

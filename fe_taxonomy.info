@@ -1,4 +1,3 @@
-; $Id$
 name = "FE taxonomy"
 description = "Build taxonomies as features."
 package = "Features extra"

@@ -1,8 +1,0 @@
-name = "FE taxonomy"
-description = "Build taxonomies as features."
-package = "Features extra"
-core = "6.x"
-
-dependencies[] = taxonomy
-dependencies[] = features
-dependencies[] = ctools

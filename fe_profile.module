@@ -19,10 +19,12 @@ function fe_profile_features_api() {
  */
 function fe_profile_features_export_options() {
   $options = array();
-    
-  $fields = db_query('SELECT * FROM {profile_fields}');
-  while ($field = db_fetch_array($fields)) {
-    $options[$field['name']] = $field['name'];
+  $table    = 'profile_field'; 
+  
+  $query = "SELECT * FROM {{$table}}";
+  $fields = db_query($query);
+  while ($row = $fields->fetchObject()) {
+    $options[$row->name] = $row->name;
   }
 
   return $options;
@@ -45,8 +47,10 @@ function fe_profile_features_export($data, &$export, $module_name = '') {
  */
 function fe_profile_features_export_render($module_name, $data) {
   $items = array();
+  $table    = 'profile_field'; 
+  
   foreach ($data as $key) {
-    $field = db_fetch_array(db_query("SELECT * FROM {profile_fields} WHERE name ='%s'", $key));
+    $field = db_query("SELECT * FROM {{$table}} WHERE name = :profile_field_name", array(':profile_field_name' => $key))->fetchObject();
     $items[$key] = $field;
   }
   $code = "  \$items = " . features_var_export($items, '  ') . ";\n";
@@ -58,7 +62,7 @@ function fe_profile_features_export_render($module_name, $data) {
  * Implementation of hook_features_revert().
  */
 function fe_profile_features_revert($module) {
-  $table = 'profile_fields';
+  $table = 'profile_field';
   $defaults = features_get_default('fe_profile', $module);
   
   // Revert.
@@ -76,19 +80,17 @@ function _fe_profile_save_field($field_data) {
     $field_data['page'] = '';
   }
   if (!isset($field_data['fid'])) {
-    db_query("INSERT INTO {profile_fields} (title, name, explanation, category, type, weight, required, register, visibility, autocomplete, options, page) 
-                     VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, %d, '%s', '%s')", 
-                   $field_data['title'], $field_data['name'], $field_data['explanation'], $field_data['category'], $field_data['type'], $field_data['weight'], $field_data['required'], $field_data['register'], $field_data['visibility'], $field_data['autocomplete'], $field_data['options'], $field_data['page']);
+    $field_data = (object)$field_data;   
+    drupal_write_record('profile_field', $field_data);
   }
   else {
-    if(!db_result(db_query("SELECT * FROM {profile_fields} WHERE fid = '%d'", $field_data['fid']))) {
-      db_query("INSERT INTO {profile_fields} (fid, title, name, explanation, category, type, weight, required, register, visibility, autocomplete, options, page) 
-                       VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, %d, '%s', '%s')", 
-                     $field_data['fid'], $field_data['title'], $field_data['name'], $field_data['explanation'], $field_data['category'], $field_data['type'], $field_data['weight'], $field_data['required'], $field_data['register'], $field_data['visibility'], $field_data['autocomplete'], $field_data['options'], $field_data['page']);
+    $field_data = (object)$field_data;
+    
+    if(!db_query("SELECT * FROM {profile_field} WHERE fid = :fid", array(':fid' => $field_data->fid))->fetchObject() )  {      
+      drupal_write_record('profile_field', $field_data);
     }
-    else {
-      db_query("UPDATE {profile_fields} SET title = '%s', name = '%s', explanation = '%s', category = '%s', weight = %d, required = %d, register = %d, visibility = %d, autocomplete = %d, options = '%s', page = '%s' WHERE fid = %d", 
-                      $field_data['title'], $field_data['name'], $field_data['explanation'], $field_data['category'], $field_data['weight'], $field_data['required'], $field_data['register'], $field_data['visibility'], $field_data['autocomplete'], $field_data['options'], $field_data['page'], $field_data['fid']);
+    else {      
+      drupal_write_record('profile_field', $field_data, array('fid'));
     }
     
   }

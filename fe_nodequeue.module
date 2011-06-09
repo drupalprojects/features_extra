@@ -284,6 +284,7 @@ function _fe_nodequeue_save_queue($settings = array()) {
   // Simulate submitting.
   $form_state = array();
   $form_state['values'] = $settings;
+  module_load_include('inc', 'nodequeue', 'includes/nodequeue.admin');
   nodequeue_edit_queue_form_submit(NULL, $form_state);
 
   $settings['qid'] = $form_state['values']['qid'];

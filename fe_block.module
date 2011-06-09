@@ -259,7 +259,7 @@ function fe_block_boxes_features_export_render($module_name = '', $data) {
  */
 function fe_block_boxes_features_rebuild($module_name = NULL) {
   $table = 'fe_block_boxes';
-  $defaults = features_get_default($table,$module_name );
+  $defaults = features_get_default($table, $module_name);
   if (empty($defaults)) {
     return;
   }
@@ -288,7 +288,7 @@ function fe_block_boxes_features_rebuild($module_name = NULL) {
  */
 function fe_block_boxes_features_revert($module_name = NULL) {
   $table = 'fe_block_boxes';
-  $defaults = features_get_default($table,$module_name);
+  $defaults = features_get_default($table, $module_name);
   if (empty($defaults)) {
     return;
   }

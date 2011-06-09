@@ -167,6 +167,8 @@ function fe_block_settings_features_revert($module_name = NULL) {
       }
 
       drupal_write_record('blocks', $block, array('module', 'delta', 'theme'));
+      // these fields are not theme specific
+      db_query("UPDATE {blocks} SET visibility = %d, pages = '%s', custom = %d, title = '%s' WHERE module = '%s' AND delta = '%s'", $block['visibility'], trim($block['pages']), $block['custom'], $block['title'], $block['module'], $block['delta']);
     }
   }
 

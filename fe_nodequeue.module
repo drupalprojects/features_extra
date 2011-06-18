@@ -85,6 +85,7 @@ function fe_nodequeue_features_export_render($module_name = '', $data) {
   return array('fe_nodequeue_export_fields' => $code);
 }
 
+
 /**
  * Implementation of hook_features_revert().
  */
@@ -93,21 +94,26 @@ function fe_nodequeue_features_revert($module) {
   
   // Revert.
   foreach ($defaults as $object) {
-    if (empty($object->name)) {
+    if (empty($object['name'])) {
       continue;
     }
-
-    $queue = db_query('SELECT * FROM {nodequeue_queue} WHERE name = :name', array(':name' => $object_name))->fetchObject();
-
-    if (empty($queue->qid) || !($nodequeue_queue = nodequeue_load($queue->qid))) {
+    
+    if (!($nodequeue_queue = nodequeue_load_queue_by_name($object['name']))) {
+      unset($object['qid']);
       $result = _fe_nodequeue_save_queue((array) $object);
     } else {
-      $object->qid = $queue->qid;
       $result = _fe_nodequeue_save_queue((array) $object);
     }
   }
 
   return TRUE;
+}
+
+/**
+ * Implements hook_features_revert().
+ */
+function fe_nodequeue_features_rebuild($module) {
+  fe_nodequeue_features_revert($module);
 }
 
 /**
@@ -126,8 +132,6 @@ function _fe_nodequeue_save_queue($settings = array()) {
   $form_state['values'] = $settings;
   module_load_include('inc', 'nodequeue', 'includes/nodequeue.admin');
   nodequeue_edit_queue_form_submit(NULL, $form_state);
-
-  $settings['qid'] = $form_state['values']['qid'];
 
   return $settings;
 }

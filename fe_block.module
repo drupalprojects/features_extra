@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Implementation of hook_features_api().
+ * Implements hook_features_api().
  */
 function fe_block_features_api() {
   $info = array();
@@ -26,7 +26,7 @@ function fe_block_features_api() {
 }
 
 /**
- * Implementation of hook_features_export_options().
+ * Implements hook_features_export_options().
  */
 function fe_block_settings_features_export_options() {
   $options = array();
@@ -51,7 +51,7 @@ function fe_block_settings_features_export_options() {
 }
 
 /**
- * Implementation of hook_features_export().
+ * Implements hook_features_export().
  */
 function fe_block_settings_features_export($data, &$export, $module_name = '') {
   $pipe = array();
@@ -78,7 +78,7 @@ function fe_block_settings_features_export($data, &$export, $module_name = '') {
 }
 
 /**
- * Implementation of hook_features_export_render().
+ * Implements hook_features_export_render().
  */
 function fe_block_settings_features_export_render($module_name = '', $data) {
   global $custom_theme, $theme_key;
@@ -148,7 +148,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
 }
 
 /**
- * Implementation of hook_features_revert().
+ * Implements hook_features_revert().
  */
 function fe_block_settings_features_revert($module_name = NULL) {
   global $custom_theme, $theme_key;
@@ -174,7 +174,7 @@ function fe_block_settings_features_revert($module_name = NULL) {
 }
 
 /**
- * Implementation of hook_features_export_options().
+ * Implements hook_features_export_options().
  */
 function fe_block_boxes_features_export_options() {
   $table = 'fe_block_boxes';
@@ -201,7 +201,7 @@ function fe_block_boxes_features_export_options() {
 }
 
 /**
- * Implementation of hook_features_export().
+ * Implements hook_features_export().
  */
 function fe_block_boxes_features_export($data, &$export, $module_name = '') {
   $pipe = array();
@@ -217,7 +217,7 @@ function fe_block_boxes_features_export($data, &$export, $module_name = '') {
 }
 
 /**
- * Implementation of hook_features_export_render().
+ * Implements hook_features_export_render().
  */
 function fe_block_boxes_features_export_render($module_name = '', $data) {
   ctools_include('export');
@@ -256,7 +256,7 @@ function fe_block_boxes_features_export_render($module_name = '', $data) {
 }
 
 /**
- * Implementation of hook_features_revert().
+ * Implements hook_features_revert().
  */
 function fe_block_boxes_features_revert($module_name = NULL) {
   $table = 'fe_block_boxes';
@@ -294,7 +294,7 @@ function fe_block_boxes_features_revert($module_name = NULL) {
  */
 
 /**
- * Implementation of hook_form_alter().
+ * Implements hook_form_alter().
  */
 function fe_block_form_alter(&$form, $form_state, $form_id) {
   $default_values = array();

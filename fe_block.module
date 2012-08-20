@@ -94,6 +94,52 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
   $code[] = '  $export = array();';
   $code[] = '';
 
+  // Provide backwards compatibility.
+  $code[] = '  $export[\'version\'] = \'1.0\'';
+  $code[] = '';
+
+  // Retrieve node type visibility settings.
+  $block_node_types = array();
+  $result = db_query('SELECT module, delta, type FROM {block_node_type}');
+  foreach ($result as $record) {
+    $block_node_types[$record->module][$record->delta][$record->type] = TRUE;
+  }
+
+  // Filter all blocks, keeping only the ones that will be exported.
+  $blocks = _block_rehash();
+  usort($blocks, '_fe_block_compare');
+  foreach ($blocks as $key => $block) {
+    $block_id = _fe_block_build_id($block);
+    if (empty($block_id) || !in_array($block_id, $data)) {
+      unset($blocks[$key]);
+    }
+  }
+
+  // Export theme independent visibility settings.
+  $code[] = '  // Theme independent visibility settings.';
+
+  $visibility = array();
+  foreach ($blocks as $block) {
+    $block_id = _fe_block_build_id($block);
+    $visibility[$block_id]['module'] = $block['module'];
+    // Use machine name with boxes.
+    if ($block['module'] == 'block') {
+      $visibility[$block_id]['machine_name'] = _fe_block_get_machine_name($block['delta']);
+    }
+    else {
+      $visibility[$block_id]['delta'] = $block['delta'];
+    }
+
+    // Export node type visibility.
+    $visibility[$block_id]['node_type'] = !empty($block_node_types[$block['module']][$block['delta']]) ? $block_node_types[$block['module']][$block['delta']] : array();
+
+    // @todo export role visibility.
+  }
+
+  $code[] = '  $export[\'visibility\'] = ' . features_var_export($visibility, '  ') . ';';
+  $code[] = '';
+
+  // Export theme specific settings.
   foreach ($themes as $_theme_key => $theme) {
     if ($_theme_key == $theme_default || !empty($theme->status)) {
       $code[] = '  // ' . $_theme_key;
@@ -128,17 +174,17 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
         }
       }
 
-      $code[] = '  $export[\'' . $_theme_key . '\'] = $theme;';
+      $code[] = '  $export[\'theme\'][\'' . $_theme_key . '\'] = $theme;';
       $code[] = '';
     }
   }
 
-  // Only reture for enabled themes and the default theme.
+  // Only return for enabled themes and the default theme.
   $code[] = '  $theme_default = variable_get(\'theme_default\', \'garland\');';
   $code[] = '  $themes = list_themes();';
   $code[] = '  foreach ($export as $theme_key => $settings) {';
   $code[] = '    if ($theme_key != $theme_default && empty($themes[$theme_key]->status)) {';
-  $code[] = '      unset($export[$theme_key]);';
+  $code[] = '      unset($export[\'theme\'][$theme_key]);';
   $code[] = '    }';
   $code[] = '  }';
   $code[] = '  return $export;';
@@ -156,8 +202,17 @@ function fe_block_settings_features_revert($module_name = NULL) {
   $component = 'fe_block_settings';
   $defaults = features_get_default($component, $module_name);
 
-  // Revert.
-  foreach ($defaults as $_theme_key => $theme) {
+  // Provide backwards compatibility with the old export format that only
+  // supported theme specific settings.
+  if ($new_format = (isset($defaults['version']) && $defaults['version'] == '1.0')) {
+    $themes = $defaults['theme'];
+  }
+  else {
+    $themes = $defaults;
+  }
+
+  // Revert theme specific settings.
+  foreach ($themes as $_theme_key => $theme) {
     $custom_theme = $theme_key = $_theme_key;
     _block_rehash();
 
@@ -168,6 +223,34 @@ function fe_block_settings_features_revert($module_name = NULL) {
       }
 
       drupal_write_record('block', $block, array('module', 'delta', 'theme'));
+    }
+  }
+
+
+  // Revert node type visibility settings. These have been introduced with the
+  // new export format.
+  if ($new_format) {
+    foreach ($defaults['visibility'] as $block) {
+      // Convert machine name back to bid.
+      if ($block['module'] == 'block') {
+        $block['delta'] = _fe_block_get_bid($block['machine_name']);
+      }
+
+      db_delete('block_node_type')
+        ->condition('module', $block['module'])
+        ->condition('delta', $block['delta'])
+        ->execute();
+      if (!empty($block['node_type'])) {
+        $query = db_insert('block_node_type')->fields(array('type', 'module', 'delta'));
+        foreach ($block['node_type'] as $type) {
+          $query->values(array(
+            'type' => $type,
+            'module' => $block['module'],
+            'delta' => $block['delta'],
+          ));
+        }
+        $query->execute();
+      }
     }
   }
 

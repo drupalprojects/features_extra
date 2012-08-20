@@ -58,7 +58,7 @@ function fe_block_settings_features_export($data, &$export, $module_name = '') {
   $export['dependencies']['fe_block'] = 'fe_block';
 
   $component = 'fe_block_settings';
-  // Add the components
+  // Add the components.
   foreach ($data as $object_name) {
     $export['features'][$component][$object_name] = $object_name;
 
@@ -67,7 +67,7 @@ function fe_block_settings_features_export($data, &$export, $module_name = '') {
       $machine_name = substr($object_name, strlen('block-'));
       $pipe['fe_block_boxes'][$machine_name] = $machine_name;
     }
-    // TODO: menu blocks.
+    // @todo Export menu blocks.
     // Others.
     else {
       $pipe['block'][$object_name] = $object_name;
@@ -100,6 +100,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
       $code[] = '  $theme = array();';
       $code[] = '';
 
+      // Get the block list for the current theme.
       $custom_theme = $theme_key = $_theme_key;
       $blocks = _block_rehash();
       usort($blocks, '_fe_block_compare');

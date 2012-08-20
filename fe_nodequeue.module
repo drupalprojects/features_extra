@@ -19,8 +19,8 @@ function fe_nodequeue_features_api() {
  */
 function fe_nodequeue_features_export_options() {
   $options = array();
-  $table   = 'nodequeue_queue'; 
-  
+  $table   = 'nodequeue_queue';
+
   $query = "SELECT * FROM {{$table}}";
   $fields = db_query($query);
   while ($obj = $fields->fetchObject()) {
@@ -61,8 +61,8 @@ function fe_nodequeue_features_export_render($module_name = '', $data) {
 
   foreach ($data as $name) {
     if ($nodequeue = nodequeue_load_queue_by_name($name)) {
-      // sort roles and types arrays into ascending order so that we can 
-      // check for overridden db data without being affected by the 
+      // sort roles and types arrays into ascending order so that we can
+      // check for overridden db data without being affected by the
       // order in which this array gets stored/loaded.
       if (!empty($nodequeue->roles)) {
         sort($nodequeue->roles);
@@ -91,17 +91,18 @@ function fe_nodequeue_features_export_render($module_name = '', $data) {
  */
 function fe_nodequeue_features_revert($module) {
   $defaults = features_get_default('fe_nodequeue', $module);
-  
+
   // Revert.
   foreach ($defaults as $object) {
     if (empty($object['name'])) {
       continue;
     }
-    
+
     if (!($nodequeue_queue = nodequeue_load_queue_by_name($object['name']))) {
       unset($object['qid']);
       $result = _fe_nodequeue_save_queue((array) $object);
-    } else {
+    }
+    else {
       $result = _fe_nodequeue_save_queue((array) $object);
     }
   }

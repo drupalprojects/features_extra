@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Install, uninstall and schema functions for the Features Extra Block module.
+ */
 
 /**
  * Implementation of hook_schema().

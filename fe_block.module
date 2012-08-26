@@ -242,12 +242,14 @@ function fe_block_settings_features_revert($module_name = NULL) {
         ->execute();
       if (!empty($block['node_type'])) {
         $query = db_insert('block_node_type')->fields(array('type', 'module', 'delta'));
-        foreach ($block['node_type'] as $type) {
-          $query->values(array(
-            'type' => $type,
-            'module' => $block['module'],
-            'delta' => $block['delta'],
-          ));
+        foreach ($block['node_type'] as $type => $value) {
+          if ($value) {
+            $query->values(array(
+              'type' => $type,
+              'module' => $block['module'],
+              'delta' => $block['delta'],
+            ));
+          }
         }
         $query->execute();
       }

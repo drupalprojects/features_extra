@@ -95,7 +95,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
   $code[] = '';
 
   // Provide backwards compatibility.
-  $code[] = '  $export[\'version\'] = \'1.0\'';
+  $code[] = '  $export[\'version\'] = \'1.0\';';
   $code[] = '';
 
   // Retrieve node type visibility settings.

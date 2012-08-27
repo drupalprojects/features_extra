@@ -258,6 +258,8 @@ function fe_block_settings_features_revert($module_name = NULL) {
       }
     }
   }
+  // Clear block cache
+  cache_clear_all(NULL, 'cache_block');
 
   return TRUE;
 }
@@ -374,6 +376,8 @@ function fe_block_boxes_features_revert($module_name = NULL) {
       $result = _fe_block_save_box((array) $object);
     }
   }
+  // Clear block cache
+  cache_clear_all(NULL, 'cache_block');
 
   return TRUE;
 }

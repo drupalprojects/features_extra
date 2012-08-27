@@ -1,5 +1,7 @@
-name = Feature Extras Profle
+name = FE profile
 description = Export profile field using features.
-package = Ideup
+package = "Features extra"
+dependencies[] = ctools
+dependencies[] = features
 dependencies[] = profile
 core = 7.x

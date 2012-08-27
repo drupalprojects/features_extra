@@ -201,6 +201,9 @@ function fe_block_settings_features_revert($module_name = NULL) {
   global $custom_theme, $theme_key;
   $component = 'fe_block_settings';
   $defaults = features_get_default($component, $module_name);
+  if (empty($defaults)) {
+    return;
+  }
 
   // Provide backwards compatibility with the old export format that only
   // supported theme specific settings.

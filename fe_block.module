@@ -253,7 +253,7 @@ function fe_block_settings_features_revert($module_name = NULL) {
             $query->values(array(
               'type' => $type,
               'module' => $block['module'],
-              'delta' => $block['delta'],
+              'delta' => isset($block['delta']) ? $block['delta'] : 0,
             ));
           }
         }

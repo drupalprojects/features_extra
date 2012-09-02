@@ -136,6 +136,9 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
     // @todo export role visibility.
   }
 
+  // Sort the array and remove empty values.
+  _features_sanitize($visibility);
+
   $code[] = '  $export[\'visibility\'] = ' . features_var_export($visibility, '  ') . ';';
   $code[] = '';
 

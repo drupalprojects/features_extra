@@ -351,13 +351,13 @@ function fe_block_boxes_features_export_render($module_name = '', $data) {
         $additions = (array) $box;
         unset($additions['bid'], $additions['body']);
 
-	// Code.
-	$identifier = $schema['export']['identifier'];
-	$code[] = ctools_export_object($component, $object, '  ', $identifier, $additions)
-		 . '  $' . $identifier . '->body = ' . features_var_export($box['body']) . ';';
-	$code[] = '';
-	$code[] = '  $export[\'' . $machine_name . '\'] = $' . $identifier . ';';
-	$code[] = '';
+        // Code.
+        $identifier = $schema['export']['identifier'];
+        $code[] = ctools_export_object($component, $object, '  ', $identifier, $additions)
+                 . '  $' . $identifier . '->body = ' . features_var_export($box['body']) . ';';
+        $code[] = '';
+        $code[] = '  $export[\'' . $machine_name . '\'] = $' . $identifier . ';';
+        $code[] = '';
       }
     }
   }

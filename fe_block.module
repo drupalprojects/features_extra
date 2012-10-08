@@ -183,7 +183,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
   }
 
   // Only return for enabled themes and the default theme.
-  $code[] = '  $theme_default = variable_get(\'theme_default\', \'garland\');';
+  $code[] = '  $theme_default = variable_get(\'theme_default\', \'bartik\');';
   $code[] = '  $themes = list_themes();';
   $code[] = '  foreach ($export[\'theme\'] as $theme_key => $settings) {';
   $code[] = '    if ($theme_key != $theme_default && empty($themes[$theme_key]->status)) {';

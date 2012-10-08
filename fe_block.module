@@ -552,8 +552,8 @@ function _fe_block_compare($a, $b) {
  *   The machine name, or FALSE if it could not be found.
  */
 function _fe_block_get_machine_name($bid) {
-  static $cache = array();
-  if (!isset($cache[$bid])) {
+  $machine_names = &drupal_static(__FUNCTION__);
+  if (!isset($machine_names[$bid])) {
     $result = db_select('fe_block_boxes')
       ->fields('fe_block_boxes', array('machine_name'))
       ->condition('bid', $bid)
@@ -563,9 +563,9 @@ function _fe_block_get_machine_name($bid) {
     if (empty($result)) {
       return FALSE;
     }
-    $cache[$bid] = $result->machine_name;
+    $machine_names[$bid] = $result->machine_name;
   }
-  return $cache[$bid];
+  return $machine_names[$bid];
 }
 
 /**

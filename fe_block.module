@@ -581,7 +581,7 @@ function fe_block_get_machine_name($bid) {
  */
 function _fe_block_get_bid($machine_name, $reset = FALSE) {
   debug(t('The function @function is deprecated.', array('@function' => __FUNCTION__ . '()')));
-  fe_block_get_bid($machine_name, $reset);
+  return fe_block_get_bid($machine_name, $reset);
 }
 
 /**

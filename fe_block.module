@@ -554,17 +554,16 @@ function _fe_block_compare($a, $b) {
 function _fe_block_get_machine_name($bid) {
   static $cache = array();
   if (!isset($cache[$bid])) {
+    $result = db_select('fe_block_boxes')
+      ->fields('fe_block_boxes', array('machine_name'))
+      ->condition('bid', $bid)
+      ->execute()
+      ->fetch();
 
-    $query = db_select('fe_block_boxes')
-      ->fields('fe_block_boxes', array('machine_name') )
-      ->condition('bid', $bid)->execute();
-
-    if ($block = $query->fetch()) {
-      $cache[$bid] = $block->machine_name;
-    }
-    else {
+    if (empty($result)) {
       return FALSE;
     }
+    $cache[$bid] = $result->machine_name;
   }
   return $cache[$bid];
 }

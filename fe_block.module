@@ -543,7 +543,13 @@ function _fe_block_compare($a, $b) {
 }
 
 /**
- * Get box machine name.
+ * Returns the machine name that corresponds to a given block id (aka delta).
+ *
+ * @param int $bid
+ *   The block id for which to retrieve the machine name.
+ *
+ * @return string | FALSE
+ *   The machine name, or FALSE if it could not be found.
  */
 function _fe_block_get_machine_name($bid) {
   static $cache = array();

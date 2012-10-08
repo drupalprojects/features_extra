@@ -557,7 +557,7 @@ function _fe_block_get_machine_name($bid) {
       $cache[$bid] = $block->machine_name;
     }
     else {
-      return NULL;
+      return FALSE;
     }
   }
   return $cache[$bid];

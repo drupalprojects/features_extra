@@ -124,7 +124,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
     $visibility[$block_id]['module'] = $block['module'];
     // Use machine name with boxes.
     if ($block['module'] == 'block') {
-      $visibility[$block_id]['machine_name'] = _fe_block_get_machine_name($block['delta']);
+      $visibility[$block_id]['machine_name'] = fe_block_get_machine_name($block['delta']);
     }
     else {
       $visibility[$block_id]['delta'] = $block['delta'];
@@ -163,7 +163,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
         if (in_array($block_id, $data)) {
           // Use machine name with boxes.
           if ($block['module'] == 'block') {
-            $block['machine_name'] = _fe_block_get_machine_name($block['delta']);
+            $block['machine_name'] = fe_block_get_machine_name($block['delta']);
             unset($block['delta']);
           }
           // Region.
@@ -436,7 +436,7 @@ function fe_block_form_alter(&$form, $form_state, $form_id) {
   }
   elseif ($form_id == 'block_admin_configure' && $form['module']['#value'] == 'block' && user_access('administer features')) {
     $bid = $form['delta']['#value'];
-    $machine_name = _fe_block_get_machine_name($bid);
+    $machine_name = fe_block_get_machine_name($bid);
     $default_values['machine_name'] = empty($machine_name) ? '' : $machine_name;
     $default_values['bid'] = $bid;
   }
@@ -543,6 +543,14 @@ function _fe_block_compare($a, $b) {
 }
 
 /**
+ * Provided for backwards compatibility. Use fe_block_get_machine_name().
+ */
+function _fe_block_get_machine_name($bid) {
+  debug(t('The function @function is deprecated.', array('@function' => __FUNCTION__ . '()')));
+  return fe_block_get_machine_name($bid);
+}
+
+/**
  * Returns the machine name that corresponds to a given block id (aka delta).
  *
  * @param int $bid
@@ -551,7 +559,7 @@ function _fe_block_compare($a, $b) {
  * @return string | FALSE
  *   The machine name, or FALSE if it could not be found.
  */
-function _fe_block_get_machine_name($bid) {
+function fe_block_get_machine_name($bid) {
   $machine_names = &drupal_static(__FUNCTION__);
   if (!isset($machine_names[$bid])) {
     $result = db_select('fe_block_boxes')
@@ -610,7 +618,7 @@ function _fe_block_build_id($block) {
     return NULL;
   }
   if ($block['module'] == 'block') {
-    $machine_name = _fe_block_get_machine_name($block['delta']);
+    $machine_name = fe_block_get_machine_name($block['delta']);
     if (empty($machine_name)) {
       return NULL;
     }

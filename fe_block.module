@@ -145,7 +145,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
   // Export theme specific settings.
   foreach ($themes as $_theme_key => $theme) {
     if ($_theme_key == $theme_default || !empty($theme->status)) {
-      $code[] = '  // ' . $_theme_key;
+      $code[] = '  // Exported block settings for ' . $theme->info['name'] . '.';
       $code[] = '  $theme = array();';
       $code[] = '';
 

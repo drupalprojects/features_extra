@@ -225,7 +225,7 @@ function fe_block_settings_features_revert($module_name = NULL) {
     foreach ($theme as $block) {
       // Convert machine name back to bid.
       if ($block['module'] == 'block') {
-        $block['delta'] = _fe_block_get_bid($block['machine_name'], TRUE);
+        $block['delta'] = fe_block_get_bid($block['machine_name'], TRUE);
       }
 
       drupal_write_record('block', $block, array('module', 'delta', 'theme'));
@@ -238,7 +238,7 @@ function fe_block_settings_features_revert($module_name = NULL) {
     foreach ($defaults['visibility'] as $block) {
       // Convert machine name back to bid.
       if ($block['module'] == 'block') {
-        $block['delta'] = _fe_block_get_bid($block['machine_name']);
+        $block['delta'] = fe_block_get_bid($block['machine_name']);
       }
 
       db_delete('block_node_type')
@@ -381,7 +381,7 @@ function fe_block_boxes_features_revert($module_name = NULL) {
       continue;
     }
 
-    $bid = _fe_block_get_bid($object->machine_name);
+    $bid = fe_block_get_bid($object->machine_name);
     if (empty($bid) || !($box = block_custom_block_get($bid))) {
       $result = _fe_block_save_box((array) $object);
       if (!empty($result['bid'])) {
@@ -564,6 +564,14 @@ function _fe_block_get_machine_name($bid) {
 }
 
 /**
+ * Provided for backwards compatibility. Use fe_block_get_bid() instead.
+ */
+function _fe_block_get_bid($machine_name, $reset = FALSE) {
+  debug(t('The function @function is deprecated.', array('@function' => __FUNCTION__ . '()')));
+  fe_block_get_bid($machine_name, $reset);
+}
+
+/**
  * Returns the block id (aka delta) that corresponds to a given machine name.
  *
  * @param string $machine_name
@@ -572,7 +580,7 @@ function _fe_block_get_machine_name($bid) {
  * @return int | FALSE
  *   The block id, or FALSE if the machine name was not found.
  */
-function _fe_block_get_bid($machine_name, $reset = FALSE) {
+function fe_block_get_bid($machine_name, $reset = FALSE) {
   $bids = &drupal_static(__FUNCTION__);
   if (!isset($bids[$machine_name]) || $reset) {
     $result = db_select('fe_block_boxes')

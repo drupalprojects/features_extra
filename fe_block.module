@@ -569,12 +569,16 @@ function _fe_block_get_machine_name($bid) {
 function _fe_block_get_bid($machine_name, $reset = FALSE) {
   $bids = &drupal_static(__FUNCTION__);
   if (!isset($bids[$machine_name]) || $reset) {
-    $query = db_select('fe_block_boxes')
+    $result = db_select('fe_block_boxes')
       ->fields('fe_block_boxes', array('bid'))
       ->condition('machine_name', $machine_name)
-      ->execute();
+      ->execute()
+      ->fetch();
 
-    $bids[$machine_name] = (int) $query->fetch()->bid;
+    if (empty($result)) {
+      return FALSE;
+    }
+    $bids[$machine_name] = (int) $result->bid;
   }
   return $bids[$machine_name];
 }

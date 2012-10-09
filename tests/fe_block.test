@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Features Extra Block module.
+ */
+
+/**
+ * Main tests for the Features Extra Block module.
+ */
+class FeaturesExtraBlockTestCase extends DrupalWebTestCase {
+  // The installation profile that will be used to run the tests.
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Install, revert and override',
+      'description' => 'Tests if a feature containing blocks and block settings can be installed, reverted and detected as being overridden.',
+      'group' => 'Features Extra',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array(
+      'features_extra_test',
+    ));
+
+    $admin_user = $this->drupalCreateUser(array('administer features'));
+    $this->drupalLogin($admin_user);
+  }
+
+  /**
+   * Check that all modules that are required for the test suite are available.
+   */
+  public function testRequiredModules() {
+    $required_modules = array(
+      'block',
+      'ctools',
+      'features',
+      'fe_block',
+      'features_extra_test',
+    );
+
+    foreach ($required_modules as $module) {
+      $this->assertTrue(module_exists($module), format_string('The required module @module exists.', array('@module' => $module)));
+    }
+  }
+}

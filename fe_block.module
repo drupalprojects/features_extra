@@ -551,7 +551,7 @@ function _fe_block_get_machine_name($bid) {
 }
 
 /**
- * Returns the machine name that corresponds to a given block id (aka delta).
+ * Returns the machine name that corresponds to a given block id.
  *
  * @param int $bid
  *   The block id for which to retrieve the machine name.
@@ -585,7 +585,7 @@ function _fe_block_get_bid($machine_name, $reset = FALSE) {
 }
 
 /**
- * Returns the block id (aka delta) that corresponds to a given machine name.
+ * Returns the block id that corresponds to a given machine name.
  *
  * @param string $machine_name
  *   The machine name of a block for which to retrieve the block id.

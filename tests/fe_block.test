@@ -45,4 +45,62 @@ class FeaturesExtraBlockTestCase extends DrupalWebTestCase {
       $this->assertTrue(module_exists($module), format_string('The required module @module exists.', array('@module' => $module)));
     }
   }
+
+  /**
+   * Test if blocks can be reverted and that overrides are detected.
+   */
+  public function testBlockRevert() {
+    module_load_include('inc', 'features', 'features.export');
+
+    // Ensure that the block is properly available.
+    $bid = fe_block_get_bid('features_extra_test_block');
+    $block = block_load('block', $bid);
+    $this->assertTrue(!empty($block), 'The reverted block is present.');
+
+    $components = array(
+      'fe_block_boxes',
+      'fe_block_settings',
+    );
+
+    foreach ($components as $component) {
+      // Ensure that the component is in its default state initially.
+      $states = features_get_component_states(array('features_extra_test'), FALSE, TRUE);
+      $this->assertTrue($states['features_extra_test'][$component] === FEATURES_DEFAULT, t('@component state: Default.', array('@component' => $component)));
+
+      // Override component and test that Features detects the override.
+      $callback = "override_{$component}";
+      $this->$callback($block);
+      $states = features_get_component_states(array('features_extra_test'), FALSE, TRUE);
+      $this->assertTrue($states['features_extra_test'][$component] === FEATURES_OVERRIDDEN, t('@component state: Overridden.', array('@component' => $component)));
+    }
+
+    // Revert component and ensure that component has reverted.
+    features_revert(array('features_extra_test' => $components));
+    drupal_flush_all_caches();
+    foreach ($components as $component) {
+      $states = features_get_component_states(array('features_extra_test'), FALSE, TRUE);
+      $this->assertTrue($states['features_extra_test'][$component] === FEATURES_DEFAULT, t('@component reverted successfully.', array('@component' => $component)));
+    }
+  }
+
+  /**
+   * Change the content of the test block so the component becomes overridden.
+   */
+  protected function override_fe_block_boxes($block) {
+    db_update('block_custom')
+      ->fields(array('body' => 'overridden'))
+      ->condition('bid', $block->bid)
+      ->execute();
+  }
+
+  /**
+   * Change a setting of the test block so the component becomes overridden.
+   */
+  protected function override_fe_block_settings($block) {
+    db_update('block')
+      ->fields(array('region' => 'footer'))
+      ->condition('bid', $block->bid)
+      ->condition('theme', 'bartik')
+      ->execute();
+  }
 }

@@ -62,7 +62,8 @@ function fe_nodequeue_features_export_render($module_name = '', $data) {
   foreach ($data as $name) {
     // Clone the nodequeue object so that our changes aren't statically
     // cached.
-    if ($nodequeue = clone nodequeue_load_queue_by_name($name)) {
+    $nodequeue_static = nodequeue_load_queue_by_name($name);
+    if (!empty($nodequeue_static) && $nodequeue = clone $nodequeue_static) {
       // sort roles and types arrays into ascending order so that we can
       // check for overridden db data without being affected by the
       // order in which this array gets stored/loaded.

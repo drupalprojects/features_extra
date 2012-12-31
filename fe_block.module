@@ -128,7 +128,8 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
       $export_block = _fe_block_prepare_custom_blocks_for_export($export_block);
       // Add node type settings.
       $export_block['node_types'] = _fe_block_get_block_node_types($block);
-      // @todo: Add role visibility settings.
+      // Add role visibility settings.
+      $export_block['roles'] = _fe_block_get_block_roles($block);
       // Add theme specific settings for every active theme.
       $export_block['themes'] = array();
       foreach ($themes as $theme) {
@@ -432,8 +433,10 @@ function fe_block_settings_features_revert($module_name = NULL) {
     // later. We explicitely set NULL, if no setting was given in the defaults.
     $block_themes = $block['themes'];
     $block_node_types = isset($block['node_types']) ? $block['node_types'] : NULL;
+    $block_roles = isset($block['roles']) ? $block['roles'] : NULL;
     unset($block['themes']);
     unset($block['node_types']);
+    unset($block['roles']);
 
     // Restore theme specific settings for every active theme.
     foreach ($active_themes as $theme) {
@@ -469,6 +472,11 @@ function fe_block_settings_features_revert($module_name = NULL) {
     // data).
     if (isset($block_node_types)) {
       _fe_block_settings_update_block_node_type_settings($block, $block_node_types);
+    }
+
+    // Apply role visibility settings.
+    if (isset($block_roles)) {
+      _fe_block_settings_update_block_roles($block, $block_roles);
     }
   }
 
@@ -520,6 +528,55 @@ function _fe_block_settings_update_block_node_type_settings($block, $node_types)
       ));
     }
     $insert->execute();
+  }
+}
+
+/**
+ * Helper to update the block role settings for a given block.
+ *
+ * @param array $block
+ *   block definiton
+ * @param array $roles
+ *   Associative array of roles
+ *   - key: role name
+ *   - value: (foreign) role id
+ */
+function _fe_block_settings_update_block_roles($block, $block_roles) {
+  static $roles;
+
+  // First get the current set of roles, so we can match role names to rids.
+  if (!isset($roles)) {
+    $roles = db_select('role', 'r')
+      ->fields('r', array('rid', 'name'))
+      ->execute()
+      ->fetchAllKeyed(1, 0);
+  }
+
+  // First delete the old block role settings.
+  db_delete('block_role')
+    ->condition('module', $block['module'])
+    ->condition('delta', $block['delta'])
+    ->execute();
+  // Then write the new settings, if any are present.
+  if (!empty($block_roles)) {
+    $insert = db_insert('block_role')
+      ->fields(array('module', 'delta', 'rid'));
+    // We use a found flag, to avoid empty inserts if no role names match.
+    $found = FALSE;
+    foreach ($block_roles as $name => $rid) {
+      // We only write for roles, matching the given role name.
+      if (isset($roles[$name])) {
+        $insert->values(array(
+          'module' => $block['module'],
+          'delta' => $block['delta'],
+          'rid' => $roles[$name],
+        ));
+        $found = TRUE;
+      }
+    }
+    if ($found) {
+      $insert->execute();
+    }
   }
 }
 
@@ -951,6 +1008,27 @@ function fe_block_default_fe_block_settings_alter(&$defaults) {
   $defaults = _fe_block_settings_convert($defaults);
 }
 
+/**
+ * Helper function to get the block roles visibility settings.
+ *
+ * @param array $block
+ *   the block definition array
+ *
+ * @return array
+ *   associated role settings for the block
+ *   - key: role name
+ *   - value: role id
+ */
+function _fe_block_get_block_roles($block) {
+  $query = db_select('block_role', 'br')
+    ->condition('br.module', $block['module'])
+    ->condition('br.delta', $block['delta']);
+  $query->innerJoin('role', 'r', 'r.rid = br.rid');
+  $query->fields('r', array('name', 'rid'))
+    ->orderBy('r.name', 'ASC');
+  $roles = $query->execute()->fetchAllKeyed(0, 1);
+  return $roles;
+}
 
 /**
  * Helper function to convert an older export into the new format.

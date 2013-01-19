@@ -600,6 +600,13 @@ function fe_block_settings_features_enable_feature($module) {
 }
 
 /**
+ * Implements hook_features_rebuild().
+ */
+function fe_block_settings_features_rebuild($module) {
+  fe_block_settings_features_revert($module);
+}
+
+/**
  * Implements hook_features_export_options().
  */
 function fe_block_boxes_features_export_options() {
@@ -731,6 +738,13 @@ function fe_block_boxes_features_disable_feature($module) {
  *   Name of module that has been enabled.
  */
 function fe_block_boxes_features_enable_feature($module) {
+  fe_block_boxes_features_revert($module);
+}
+
+/**
+ * Implements hook_features_rebuild().
+ */
+function fe_block_boxes_features_rebuild($module) {
   fe_block_boxes_features_revert($module);
 }
 

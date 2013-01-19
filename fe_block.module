@@ -297,7 +297,7 @@ function _fe_block_get_block_node_types($block) {
 /**
  * Returns the blocks currently exported by modules.
  *
- * Derived from _block_rehash().
+ * This is derived from _block_rehash().
  *
  * @param $theme
  *   The theme to retrieve blocks for. If not provided, defaults to the
@@ -582,18 +582,12 @@ function _fe_block_settings_update_block_roles($block, $block_roles) {
 
 /**
  * Implements hook_features_disable_feature().
- *
- * @param $module
- *   Name of module that has been disabled.
  */
 function fe_block_settings_features_disable_feature($module) {
 }
 
 /**
  * Implements hook_features_enable_feature().
- *
- * @param $module
- *   Name of module that has been enabled.
  */
 function fe_block_settings_features_enable_feature($module) {
   fe_block_settings_features_revert($module);
@@ -622,7 +616,6 @@ function fe_block_boxes_features_export_options() {
   }
 
   // Normals.
-
   $query = "SELECT * FROM {{$table}} {$table} INNER JOIN {block_custom} b ON b.bid = {$table}.bid ORDER BY b.bid ASC";
   $result = db_query($query);
   foreach ($result as $obj) {
@@ -724,18 +717,12 @@ function fe_block_boxes_features_revert($module_name = NULL) {
 
 /**
  * Implements hook_features_disable_feature().
- *
- * @param $module
- *   Name of module that has been disabled.
  */
 function fe_block_boxes_features_disable_feature($module) {
 }
 
 /**
  * Implements hook_features_enable_feature().
- *
- * @param $module
- *   Name of module that has been enabled.
  */
 function fe_block_boxes_features_enable_feature($module) {
   fe_block_boxes_features_revert($module);
@@ -747,10 +734,6 @@ function fe_block_boxes_features_enable_feature($module) {
 function fe_block_boxes_features_rebuild($module) {
   fe_block_boxes_features_revert($module);
 }
-
-/**
- * Drupal hooks.
- */
 
 /**
  * Implements hook_form_alter().

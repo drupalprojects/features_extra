@@ -124,6 +124,13 @@ function fe_nodequeue_features_rebuild($module) {
   fe_nodequeue_features_revert($module);
 }
 
+ /**
+ * Implements hook_features_enable_feature().
+ */
+function fe_nodequeue_features_enable_feature($module) {
+  fe_nodequeue_features_revert($module);
+}
+
 /**
  * Save a nodequeue queue.
  *

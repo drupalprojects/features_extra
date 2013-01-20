@@ -682,8 +682,7 @@ function fe_block_boxes_features_export_render($module_name = '', $data) {
  * Implements hook_features_revert().
  */
 function fe_block_boxes_features_revert($module_name = NULL) {
-  $table = 'fe_block_boxes';
-  $defaults = features_get_default($table, $module_name);
+  $defaults = features_get_default('fe_block_boxes', $module_name);
   if (empty($defaults)) {
     return;
   }
@@ -698,9 +697,18 @@ function fe_block_boxes_features_revert($module_name = NULL) {
     if (empty($bid) || !($box = block_custom_block_get($bid))) {
       $result = _fe_block_save_box((array) $object);
       if (!empty($result['bid'])) {
-        $arg = array(':bid' => $result['bid'], ':machine_name' => $object->machine_name);
-        db_query("DELETE FROM {{$table}} WHERE bid = :bid OR machine_name = :machine_name", $arg);
-        db_query("INSERT INTO {{$table}} (bid, machine_name) VALUES (:bid, :machine_name)", $arg);
+        $or = db_or()
+          ->condition('bid', $result['bid'])
+          ->condition('machine_name', $object->machine_name);
+        db_delete('fe_block_boxes')
+          ->condition($or)
+          ->execute();
+        db_insert('fe_block_boxes')
+          ->fields(array(
+            'bid' => $result['bid'],
+            'machine_name' => $object->machine_name,
+          ))
+          ->execute();
       }
     }
     else {

@@ -6,7 +6,7 @@
  */
 
 /**
- * Main tests for the Features Extra Block module.
+ * Tests the custom block functionality.
  */
 class FeaturesExtraBlockTestCase extends DrupalWebTestCase {
   // The installation profile that will be used to run the tests.
@@ -47,12 +47,12 @@ class FeaturesExtraBlockTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Test if blocks can be reverted and that overrides are detected.
+   * Test if custom blocks can be reverted and that overrides are detected.
    */
   public function testBlockRevert() {
     module_load_include('inc', 'features', 'features.export');
 
-    // Ensure that the block is properly available.
+    // Ensure that the exported custom block is properly available.
     $bid = fe_block_get_bid('features_extra_test_block');
     $block = block_load('block', $bid);
     $this->assertTrue(!empty($block), 'The reverted block is present.');

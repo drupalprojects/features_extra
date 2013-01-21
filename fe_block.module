@@ -410,7 +410,6 @@ function _fe_block_get_active_themes() {
  * Implements hook_features_revert().
  */
 function fe_block_settings_features_revert($module_name = NULL) {
-
   $component = 'fe_block_settings';
   $defaults = features_get_default($component, $module_name);
   if (empty($defaults)) {

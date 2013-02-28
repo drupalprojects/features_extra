@@ -130,6 +130,10 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
       $export_block['node_types'] = _fe_block_get_block_node_types($block);
       // Add role visibility settings.
       $export_block['roles'] = _fe_block_get_block_roles($block);
+      // Add block_class support.
+      if (module_exists('block_class')) {
+        $export_block['classes'] = _fe_block_get_block_classes($block);
+      }
       // Add theme specific settings for every active theme.
       $export_block['themes'] = array();
       foreach ($themes as $theme) {
@@ -433,9 +437,11 @@ function fe_block_settings_features_revert($module_name = NULL) {
     $block_themes = $block['themes'];
     $block_node_types = isset($block['node_types']) ? $block['node_types'] : NULL;
     $block_roles = isset($block['roles']) ? $block['roles'] : NULL;
+    $block_classes = isset($block['classes']) ? $block['classes'] : NULL;
     unset($block['themes']);
     unset($block['node_types']);
     unset($block['roles']);
+    unset($block['classes']);
 
     // Restore theme specific settings for every active theme.
     foreach ($active_themes as $theme) {
@@ -476,6 +482,11 @@ function fe_block_settings_features_revert($module_name = NULL) {
     // Apply role visibility settings.
     if (isset($block_roles)) {
       _fe_block_settings_update_block_roles($block, $block_roles);
+    }
+
+    // Update block classes.
+    if (isset($block_classes) && module_exists('block_class')) {
+      _fe_block_settings_update_block_classes($block, $block_classes);
     }
   }
 
@@ -580,6 +591,37 @@ function _fe_block_settings_update_block_roles($block, $block_roles) {
     }
     if ($found) {
       $insert->execute();
+    }
+  }
+}
+
+/**
+ * Helper to update the block class settings for a given block.
+ *
+ * @param array $block
+ *   Block definition of the block to update.
+ * @param string $block_classes
+ *   List of classes to apply to the block.
+ */
+function _fe_block_settings_update_block_classes($block, $block_classes) {
+  // This functionality is provided by the Block Class module.
+  if (module_exists('block_class')) {
+    // First delete the old block_class settings, if any.
+    db_delete('block_class')
+      ->condition('module', $block['module'])
+      ->condition('delta', $block['delta'])
+      ->execute();
+
+    // Then write the new settings, if any are present.
+    if (!empty($block_classes)) {
+      db_insert('block_class')
+        ->fields(array('module', 'delta', 'css_class'))
+        ->values(array(
+            'module' => $block['module'],
+            'delta' => $block['delta'],
+            'css_class' => $block_classes,
+          ))
+        ->execute();
     }
   }
 }
@@ -1036,6 +1078,34 @@ function _fe_block_get_block_roles($block) {
     ->orderBy('r.name', 'ASC');
   $roles = $query->execute()->fetchAllKeyed(0, 1);
   return $roles;
+}
+
+/**
+ * Helper function to get block class settings.
+ *
+ * @param array $block
+ *   The block definition.
+ *
+ * @return string
+ *   Class name(s) for the block.
+ */
+function _fe_block_get_block_classes($block) {
+  $result = '';
+
+  // This functionality depends on the Block Class module.
+  if (module_exists('block_class')) {
+    $classes = db_select('block_class', 'b')
+      ->fields('b', array('css_class'))
+      ->condition('module', $block['module'])
+      ->condition('delta', $block['delta'])
+      ->execute()
+      ->fetchField();
+
+    if (!empty($classes)) {
+      $result = $classes;
+    }
+  }
+  return $result;
 }
 
 /**

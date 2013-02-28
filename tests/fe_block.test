@@ -6,7 +6,7 @@
  */
 
 /**
- * Tests the custom block functionality.
+ * Tests the functionality of FE Block.
  */
 class FeaturesExtraBlockTestCase extends DrupalWebTestCase {
   // The installation profile that will be used to run the tests.
@@ -14,8 +14,8 @@ class FeaturesExtraBlockTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'Install, revert and override',
-      'description' => 'Tests if a feature containing blocks and block settings can be installed, reverted and detected as being overridden.',
+      'name' => 'FE Block',
+      'description' => 'Tests Features integration for blocks and block settings.',
       'group' => 'Features Extra',
     );
   }
@@ -35,6 +35,7 @@ class FeaturesExtraBlockTestCase extends DrupalWebTestCase {
   public function testRequiredModules() {
     $required_modules = array(
       'block',
+      'block_class',
       'ctools',
       'features',
       'fe_block',
@@ -102,5 +103,15 @@ class FeaturesExtraBlockTestCase extends DrupalWebTestCase {
       ->condition('bid', $block->bid)
       ->condition('theme', 'bartik')
       ->execute();
+  }
+
+  /**
+   * Tests the integration with the Block Class module.
+   *
+   * @see http://www.drupal.org/node/1342996
+   */
+  public function testBlockClass() {
+    $this->drupalGet('<front>');
+    $this->assertRaw('test-class', 'The class set by the Block Class module has been found.');
   }
 }

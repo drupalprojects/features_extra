@@ -489,10 +489,15 @@ function fe_block_settings_features_revert($module_name = NULL) {
  * Helper to update global block settings for a specific block.
  *
  * @param array $block
- *   block definition
+ *   Block definition.
  */
 function _fe_block_settings_update_global_settings($block) {
   $globals = _fe_block_get_global_settings($block);
+
+  // Filter out any keys that do not correspond to fields in the block table.
+  $fields = drupal_schema_fields_sql('block');
+  $globals = array_intersect_key($globals, array_flip($fields));
+
   db_update('block')
     ->fields($globals)
     ->condition('module', $block['module'])

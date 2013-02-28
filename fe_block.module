@@ -534,9 +534,9 @@ function _fe_block_settings_update_block_node_type_settings($block, $node_types)
  * Helper to update the block role settings for a given block.
  *
  * @param array $block
- *   block definiton
+ *   Block definition.
  * @param array $roles
- *   Associative array of roles
+ *   Associative array of roles.
  *   - key: role name
  *   - value: (foreign) role id
  */

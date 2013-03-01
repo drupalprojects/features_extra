@@ -7,4 +7,6 @@ dependencies[] = block
 dependencies[] = features
 dependencies[] = ctools
 
+test_dependencies[] = block_class
+
 files[] = tests/fe_block.test

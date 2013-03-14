@@ -19,10 +19,7 @@ function fe_nodequeue_features_api() {
  */
 function fe_nodequeue_features_export_options() {
   $options = array();
-  $table   = 'nodequeue_queue';
-
-  $query = "SELECT * FROM {{$table}}";
-  $fields = db_query($query);
+  $fields = db_query('SELECT * FROM {nodequeue_queue}');
   while ($obj = $fields->fetchObject()) {
     $options[$obj->name] = t('@name [@machine_name]', array('@name' => $obj->title, '@machine_name' => $obj->name));
   }
@@ -43,8 +40,22 @@ function fe_nodequeue_features_export($data, &$export, $module_name = '') {
       $module = $map[$name];
       $export['dependencies'][$module] = $module;
     }
-    // Otherwise, export the nodequeue
-    elseif (nodequeue_load_queue_by_name($name)) {
+    // Otherwise, export the nodequeue.
+    elseif ($queue = nodequeue_load_queue_by_name($name)) {
+      // Add dependencies for the roles that are associated with these queues.
+      if ($queue->roles) {
+        // Filter out roles that have the 'manipulate all queues' permission.
+        // @see http://drupal.org/node/213074
+        $manipulate_all_queues = array_keys(user_roles(FALSE, 'manipulate all queues'));
+        $queue->roles = array_diff($queue->roles, $manipulate_all_queues);
+        $roles = user_roles();
+        foreach ($queue->roles as $index => $rid) {
+          $export['features']['user_role'][$roles[$rid]] = $roles[$rid];
+          // Convert the role from a rid to a 'machine name' for saving. This
+          // will be converted back to a rid when the feature is reverted.
+          $queue->roles[$index] = $roles[$rid];
+        }
+      }
       $export['features']['fe_nodequeue'][$name] = $name;
     }
   }
@@ -59,6 +70,8 @@ function fe_nodequeue_features_export_render($module_name = '', $data) {
   $code[] = '  $nodequeues = array();';
   $code[] = '';
 
+  $roles = user_roles();
+
   foreach ($data as $name) {
     // Clone the nodequeue object so that our changes aren't statically
     // cached.
@@ -68,16 +81,28 @@ function fe_nodequeue_features_export_render($module_name = '', $data) {
       // check for overridden db data without being affected by the
       // order in which this array gets stored/loaded.
       if (!empty($nodequeue->roles)) {
+        // Roles that have the 'Manipulate all queues' permission will not get
+        // saved and will throw override messages as a result.
+        $manipulate_all_queues = array_keys(user_roles(FALSE, 'manipulate all queues'));
+        $nodequeue->roles = array_diff($nodequeue->roles, $manipulate_all_queues);
+        foreach ($nodequeue->roles as $index => $rid){
+          $nodequeue->roles[$index] = $roles[$rid];
+        }
         sort($nodequeue->roles);
       }
       if (!empty($nodequeue->types)) {
         sort($nodequeue->types);
       }
 
-      // Remove variables which are specific to the current site and should not
-      // be exported.
+      // Remove the nodequeue id. This is specific to the current site and
+      // should not be exported.
       unset($nodequeue->qid);
-      unset($nodequeue->subqueues);
+
+      // We don't care how many subqueues are in here since they get created
+      // automatically.
+      if (module_exists('smartqueue')) {
+        unset($nodequeue->subqueues);
+      }
 
       $nodequeue_export = features_var_export($nodequeue, '  ');
 
@@ -106,10 +131,14 @@ function fe_nodequeue_features_revert($module) {
       continue;
     }
 
-    if ($nodequeue_queue = nodequeue_load_queue_by_name($object['name'])) {
-      // Update existing nodequeue in the situation that a nodequeue with the
-      // same name already exists.
-      $object['qid'] = $nodequeue_queue->qid;
+    // Assign the existing qid if a nodequeue with the same name already exists.
+    $map = nodequeue_get_qid_map();
+    if ($qid = $map[$object['name']]) {
+      $object['qid'] = $qid;
+    }
+    // Clear the qid if it is a new nodequeue.
+    else {
+      unset($object['qid']);
     }
     $result = _fe_nodequeue_save_queue((array) $object);
   }
@@ -138,6 +167,16 @@ function fe_nodequeue_features_enable_feature($module) {
  * @return array
  */
 function _fe_nodequeue_save_queue($settings = array()) {
+  // Convert roles from names to rids.
+  $roles = array_flip(user_roles());
+  foreach ((array) $settings['roles'] as $index => $role){
+    // In case we are dealing with an old export with rids, don't do anything.
+    if (is_int($role)) {
+      continue;
+    }
+    $settings['roles'][$index] = $roles[$role];
+  }
+
   // Simulate checkboxes.
   $settings['roles'] = drupal_map_assoc($settings['roles']);
   $settings['types'] = drupal_map_assoc($settings['types']);

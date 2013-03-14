@@ -1,11 +1,11 @@
-name = "FE block"
-description = "Build blocks and block settings as features."
-package = "Features extra"
-core = "7.x"
+name = FE Block
+description = Build blocks and block settings as features.
+core = 7.x
+package = Features extra
 
 dependencies[] = block
-dependencies[] = features
 dependencies[] = ctools
+dependencies[] = features
 
 test_dependencies[] = block_class
 

@@ -1,9 +1,11 @@
 name = Features Extra test feature
-description = Test feature for Features Extra
+description = Test feature for Features Extra.
 core = 7.x
 package = Testing
+
 dependencies[] = block_class
 dependencies[] = fe_block
+
 features[fe_block_boxes][] = features_extra_test_block
 features[fe_block_settings][] = block-features_extra_test_block
 features[features_api][] = api:1

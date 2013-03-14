@@ -1,7 +1,8 @@
-name = FE profile
+name = FE Profile
 description = Export profile field using features.
-package = "Features extra"
+core = 7.x
+package = Features extra
+
 dependencies[] = ctools
 dependencies[] = features
 dependencies[] = profile
-core = 7.x

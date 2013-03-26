@@ -133,8 +133,8 @@ function fe_nodequeue_features_revert($module) {
 
     // Assign the existing qid if a nodequeue with the same name already exists.
     $map = nodequeue_get_qid_map();
-    if ($qid = $map[$object['name']]) {
-      $object['qid'] = $qid;
+    if (isset($map[$object['name']])) {
+      $object['qid'] = $map[$object['name']];
     }
     // Clear the qid if it is a new nodequeue.
     else {

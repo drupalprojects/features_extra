@@ -531,9 +531,9 @@ function _fe_block_settings_update_global_settings($block) {
  * Helper to update node type settings for a given block.
  *
  * @param array $block
- *   block definition
+ *   Block definition.
  * @param array $node_types
- *   array of node types
+ *   Array of node types.
  */
 function _fe_block_settings_update_block_node_type_settings($block, $node_types) {
 
@@ -561,11 +561,11 @@ function _fe_block_settings_update_block_node_type_settings($block, $node_types)
  * Helper to update the block role settings for a given block.
  *
  * @param array $block
- *   Block definition.
- * @param array $roles
- *   Associative array of roles.
- *   - key: role name.
- *   - value: (foreign) role id.
+ *   Block definition.
+ * @param array $block_roles
+ *   Associative array of roles.
+ *   - key: role name.
+ *   - value: (foreign) role id.
  */
 function _fe_block_settings_update_block_roles($block, $block_roles) {
   static $roles;

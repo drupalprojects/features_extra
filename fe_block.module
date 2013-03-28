@@ -134,6 +134,10 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
       if (module_exists('block_class')) {
         $export_block['css_class'] = _fe_block_get_block_css_class($block);
       }
+      // Add i18n_block support.
+      if (module_exists('i18n_block')) {
+        $export_block['i18n_block_language'] = _fe_block_get_block_i18n_block_language($block);
+      }
       // Add theme specific settings for every active theme.
       $export_block['themes'] = array();
       foreach ($themes as $theme) {
@@ -438,10 +442,12 @@ function fe_block_settings_features_revert($module_name = NULL) {
     $block_node_types = isset($block['node_types']) ? $block['node_types'] : NULL;
     $block_roles = isset($block['roles']) ? $block['roles'] : NULL;
     $block_css_class = isset($block['css_class']) ? $block['css_class'] : NULL;
+    $block_i18n_block_language = isset($block['i18n_block_language']) ? $block['i18n_block_language'] : NULL;
     unset($block['themes']);
     unset($block['node_types']);
     unset($block['roles']);
     unset($block['css_class']);
+    unset($block['i18n_block_language']);
 
     // Restore theme specific settings for every active theme.
     foreach ($active_themes as $theme) {
@@ -487,6 +493,11 @@ function fe_block_settings_features_revert($module_name = NULL) {
     // Update block CSS classes.
     if (isset($block_css_class) && module_exists('block_class')) {
       _fe_block_settings_update_block_css_class($block, $block_css_class);
+    }
+
+    // Set i18n_block languages.
+    if (module_exists('i18n_block') && isset($block_i18n_block_language)) {
+      _fe_block_settings_update_i18n_block_language($block, $block_i18n_block_language);
     }
   }
 
@@ -635,6 +646,36 @@ function _fe_block_settings_update_block_css_class($block, $block_css_class) {
         ->condition('delta', $block['delta'])
         ->execute();
     }
+  }
+}
+
+/**
+ * Helper to update the i18n block language settings for a specific block.
+ *
+ * @param array $block
+ *   Block definition.
+ * @param array $block_languages
+ *   Array of associated languages.
+ */
+function _fe_block_settings_update_i18n_block_language($block, $block_languages) {
+  // First remove the old settings.
+  db_delete('i18n_block_language')
+    ->condition('module', $block['module'])
+    ->condition('delta', $block['delta'])
+    ->execute();
+
+  // Then write the new settings.
+  if (!empty($block_languages)) {
+    $insert = db_insert('i18n_block_language')
+      ->fields(array('module', 'delta', 'language'));
+    foreach ($block_languages as $langcode) {
+      $insert->values(array(
+        'module' => $block['module'],
+        'delta' => $block['delta'],
+        'language' => $langcode,
+      ));
+    }
+    $insert->execute();
   }
 }
 
@@ -1123,6 +1164,24 @@ function _fe_block_get_block_css_class($block) {
     }
   }
   return !empty($css_class) ? $css_class : '';
+}
+
+/**
+ * Get i18n block language from i18n_block.
+ *
+ * @param array $block
+ *   Block definition array.
+ *
+ * @return array
+ *   Array of language codes for the specified block.
+ */
+function _fe_block_get_block_i18n_block_language($block) {
+  $query = db_select('i18n_block_language', 'bl')
+    ->condition('module', $block['module'])
+    ->condition('delta', $block['delta'])
+    ->fields('bl', array('language'))
+    ->orderBy('bl.language');
+  return $query->execute()->fetchCol();
 }
 
 /**

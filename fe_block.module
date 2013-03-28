@@ -132,7 +132,7 @@ function fe_block_settings_features_export_render($module_name = '', $data) {
       $export_block['roles'] = _fe_block_get_block_roles($block);
       // Add block_class support.
       if (module_exists('block_class')) {
-        $export_block['classes'] = _fe_block_get_block_classes($block);
+        $export_block['css_class'] = _fe_block_get_block_css_class($block);
       }
       // Add theme specific settings for every active theme.
       $export_block['themes'] = array();
@@ -437,11 +437,11 @@ function fe_block_settings_features_revert($module_name = NULL) {
     $block_themes = $block['themes'];
     $block_node_types = isset($block['node_types']) ? $block['node_types'] : NULL;
     $block_roles = isset($block['roles']) ? $block['roles'] : NULL;
-    $block_classes = isset($block['classes']) ? $block['classes'] : NULL;
+    $block_css_class = isset($block['css_class']) ? $block['css_class'] : NULL;
     unset($block['themes']);
     unset($block['node_types']);
     unset($block['roles']);
-    unset($block['classes']);
+    unset($block['css_class']);
 
     // Restore theme specific settings for every active theme.
     foreach ($active_themes as $theme) {
@@ -484,9 +484,9 @@ function fe_block_settings_features_revert($module_name = NULL) {
       _fe_block_settings_update_block_roles($block, $block_roles);
     }
 
-    // Update block classes.
-    if (isset($block_classes) && module_exists('block_class')) {
-      _fe_block_settings_update_block_classes($block, $block_classes);
+    // Update block CSS classes.
+    if (isset($block_css_class) && module_exists('block_class')) {
+      _fe_block_settings_update_block_css_class($block, $block_css_class);
     }
   }
 
@@ -600,27 +600,39 @@ function _fe_block_settings_update_block_roles($block, $block_roles) {
  *
  * @param array $block
  *   Block definition of the block to update.
- * @param string $block_classes
- *   List of classes to apply to the block.
+ * @param string $block_css_class
+ *   List of CSS classes to apply to the block.
  */
-function _fe_block_settings_update_block_classes($block, $block_classes) {
+function _fe_block_settings_update_block_css_class($block, $block_css_class) {
   // This functionality is provided by the Block Class module.
   if (module_exists('block_class')) {
-    // First delete the old block_class settings, if any.
-    db_delete('block_class')
-      ->condition('module', $block['module'])
-      ->condition('delta', $block['delta'])
-      ->execute();
+    // Block Class 1.x maintained its own table.
+    if (db_table_exists('block_class')) {
+      // First delete the old block_class settings, if any.
+      db_delete('block_class')
+        ->condition('module', $block['module'])
+        ->condition('delta', $block['delta'])
+        ->execute();
 
-    // Then write the new settings, if any are present.
-    if (!empty($block_classes)) {
-      db_insert('block_class')
-        ->fields(array('module', 'delta', 'css_class'))
-        ->values(array(
-            'module' => $block['module'],
-            'delta' => $block['delta'],
-            'css_class' => $block_classes,
-          ))
+      // Then write the new settings, if any are present.
+      if (!empty($block_css_class)) {
+        db_insert('block_class')
+          ->fields(array('module', 'delta', 'css_class'))
+          ->values(array(
+              'module' => $block['module'],
+              'delta' => $block['delta'],
+              'css_class' => $block_css_class,
+            ))
+          ->execute();
+      }
+    }
+
+    // Block Class 2.x extends the core Block table.
+    elseif (db_field_exists('block', 'css_class')) {
+      db_update('block')
+        ->fields(array('css_class' => $block_css_class))
+        ->condition('module', $block['module'])
+        ->condition('delta', $block['delta'])
         ->execute();
     }
   }
@@ -1089,23 +1101,25 @@ function _fe_block_get_block_roles($block) {
  * @return string
  *   Class name(s) for the block.
  */
-function _fe_block_get_block_classes($block) {
-  $result = '';
-
+function _fe_block_get_block_css_class($block) {
   // This functionality depends on the Block Class module.
   if (module_exists('block_class')) {
-    $classes = db_select('block_class', 'b')
-      ->fields('b', array('css_class'))
-      ->condition('module', $block['module'])
-      ->condition('delta', $block['delta'])
-      ->execute()
-      ->fetchField();
+    // Block Class 2.x extends the core Block table, so we have the data.
+    if (!empty($block['css_class'])) {
+      return $block['css_class'];
+    }
 
-    if (!empty($classes)) {
-      $result = $classes;
+    // Block Class 1.x maintains its own table.
+    if (db_table_exists('block_class')) {
+      $css_class = db_select('block_class', 'b')
+        ->fields('b', array('css_class'))
+        ->condition('module', $block['module'])
+        ->condition('delta', $block['delta'])
+        ->execute()
+        ->fetchField();
     }
   }
-  return $result;
+  return !empty($css_class) ? $css_class : '';
 }
 
 /**

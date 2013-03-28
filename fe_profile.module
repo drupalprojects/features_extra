@@ -15,7 +15,7 @@ function fe_profile_features_api() {
       'feature_source' => TRUE,
       'default_hook' => 'fe_profile_export_fields',
       'default_file' => FEATURES_DEFAULTS_INCLUDED_COMMON,
-    )
+    ),
   );
 }
 
@@ -90,13 +90,13 @@ function _fe_profile_save_field($field_data) {
     $field_data['page'] = '';
   }
   if (!isset($field_data['fid'])) {
-    $field_data = (object)$field_data;
+    $field_data = (object) $field_data;
     drupal_write_record('profile_field', $field_data);
   }
   else {
-    $field_data = (object)$field_data;
+    $field_data = (object) $field_data;
 
-    if (!db_query("SELECT * FROM {profile_field} WHERE fid = :fid", array(':fid' => $field_data->fid))->fetchObject() )  {
+    if (!db_query("SELECT * FROM {profile_field} WHERE fid = :fid", array(':fid' => $field_data->fid))->fetchObject()) {
       drupal_write_record('profile_field', $field_data);
     }
     else {

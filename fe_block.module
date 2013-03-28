@@ -303,11 +303,11 @@ function _fe_block_get_block_node_types($block) {
  *
  * This is derived from _block_rehash().
  *
- * @param $theme
+ * @param string $theme
  *   The theme to retrieve blocks for. If not provided, defaults to the
  *   currently used theme.
  *
- * @return
+ * @return array
  *   Blocks currently exported by modules.
  */
 function _fe_block_get_blocks($theme = NULL) {
@@ -553,8 +553,8 @@ function _fe_block_settings_update_block_node_type_settings($block, $node_types)
  *   Block definition.
  * @param array $roles
  *   Associative array of roles.
- *   - key: role name
- *   - value: (foreign) role id
+ *   - key: role name.
+ *   - value: (foreign) role id.
  */
 function _fe_block_settings_update_block_roles($block, $block_roles) {
   static $roles;
@@ -692,7 +692,7 @@ function fe_block_boxes_features_export($data, &$export, $module_name = '') {
   $export['dependencies']['fe_block'] = 'fe_block';
 
   $table = 'fe_block_boxes';
-  // Add the components
+  // Add the components.
   foreach ($data as $object_name) {
     $export['features'][$table][$object_name] = $object_name;
   }
@@ -774,7 +774,7 @@ function fe_block_boxes_features_revert($module_name = NULL) {
       $result = _fe_block_save_box((array) $object);
     }
   }
-  // Clear block cache
+  // Clear block cache.
   cache_clear_all(NULL, 'cache_block');
 
   return TRUE;
@@ -821,7 +821,7 @@ function fe_block_form_alter(&$form, $form_state, $form_id) {
     $form['#submit'][] = 'fe_block_machine_name_delete';
   }
 
-  // Add & edit
+  // Add & edit.
   if (!empty($default_values)) {
     $form['settings']['machine_name'] = array(
       '#type' => 'textfield',
@@ -869,7 +869,7 @@ function fe_block_machine_name_validate($form, &$form_state) {
  * Save machine name.
  */
 function fe_block_machine_name_submit($form, &$form_state) {
-  // Insert
+  // If a block id is not given, retrieve it from the database.
   if (empty($form_state['values']['bid'])) {
     $form_state['values']['bid'] = db_select('block_custom')
        ->fields('block_custom', array('bid'))
@@ -1008,8 +1008,11 @@ function _fe_block_build_id($block) {
 /**
  * Save a box.
  *
- * @param $settings
+ * @param array $settings
+ *   A box settings array.
+ *
  * @return array
+ *   Updated settings array.
  */
 function _fe_block_save_box($settings = array()) {
   if (empty($settings['info'])) {
@@ -1028,7 +1031,7 @@ function _fe_block_save_box($settings = array()) {
     return FALSE;
   }
 
-  // Defaults
+  // Provide some default settings.
   $default_settings = array(
     'info'   => '',
     'body'   => '',
@@ -1036,7 +1039,7 @@ function _fe_block_save_box($settings = array()) {
   );
   $settings = array_merge($default_settings, $settings);
 
-  // Save
+  // Save the block settings.
   if (empty($settings['bid'])) {
     drupal_write_record('block_custom', $settings);
   }

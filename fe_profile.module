@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Main functions and hook implementations for FE Profile.
+ */
+
+/**
  * Implements hook_features_api().
  */
 function fe_profile_features_api() {
@@ -71,6 +76,12 @@ function fe_profile_features_revert($module) {
   }
 }
 
+/**
+ * Saves a profile field to the database.
+ *
+ * @param array $field_data
+ *   The field data to save.
+ */
 function _fe_profile_save_field($field_data) {
   if (!isset($field_data['options'])) {
     $field_data['options'] = '';

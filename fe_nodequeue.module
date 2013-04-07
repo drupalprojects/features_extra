@@ -135,7 +135,7 @@ function fe_nodequeue_features_revert($module) {
     }
 
     // Assign the existing qid if a nodequeue with the same name already exists.
-    $map = nodequeue_get_qid_map();
+    $map = _fe_nodequeue_get_qid_map();
     if (isset($map[$object['name']])) {
       $object['qid'] = $map[$object['name']];
     }
@@ -190,6 +190,7 @@ function _fe_nodequeue_save_queue($settings = array()) {
   module_load_include('inc', 'nodequeue', 'includes/nodequeue.admin');
   nodequeue_edit_queue_form_submit(NULL, $form_state);
 
+  drupal_static_reset('_fe_nodequeue_get_qid_map');
   return $settings;
 }
 

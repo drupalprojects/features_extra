@@ -192,3 +192,30 @@ function _fe_nodequeue_save_queue($settings = array()) {
 
   return $settings;
 }
+
+/**
+ * Return a map of queue name to qid values to aid in various lookups.
+ *
+ * This is based on nodequeue_get_qid_map() but uses drupal_static() instead of
+ * a static variable to cache the results.
+ *
+ * @see nodequeue_get_qid_map()
+ *
+ * @todo Add a link to the issue that converts this to drupal_static().
+ * @todo Create a followup issue to remove this once the above issue is fixed.
+ *   We will need to keep this in for a while to provide backwards compatibility
+ *   for people running old versions of Nodequeue.
+ *
+ * @return array
+ *   A array of qids, keyed by machine name.
+ */
+function _fe_nodequeue_get_qid_map() {
+  $map = &drupal_static(__FUNCTION__, array());
+  if (!$map) {
+    $result = db_query("SELECT qid, name FROM {nodequeue_queue}");
+    while ($get = $result->fetchObject()) {
+      $map[$get->name] = $get->qid;
+    }
+  }
+  return $map;
+}

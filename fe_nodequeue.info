@@ -6,3 +6,6 @@ package = Features extra
 dependencies[] = ctools
 dependencies[] = features
 dependencies[] = nodequeue
+
+files[] = tests/features_extra_test_case.php
+files[] = tests/fe_nodequeue.test

@@ -939,17 +939,7 @@ function fe_block_machine_name_delete($form, &$form_state) {
 }
 
 /**
- * Public APIs.
- *
- * TODO
- */
-
-/**
- * Internal functions.
- */
-
-/**
- * Sort blocks with "module" and "delta".
+ * Callback for usort(). Sorts blocks on "module" and "delta".
  */
 function _fe_block_compare($a, $b) {
   $module_cmp = strcmp($a['module'], $b['module']);

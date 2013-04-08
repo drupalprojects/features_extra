@@ -193,7 +193,12 @@ function _fe_nodequeue_save_queue(array $settings) {
   module_load_include('inc', 'nodequeue', 'includes/nodequeue.admin');
   nodequeue_edit_queue_form_submit(NULL, $form_state);
 
+  // Reset static caches.
+  // Note: we are currently using a variant of nodequeue_get_qid_map() that uses
+  // drupal_static() instead of a static variable to cache the results.
+  // @see http://drupal.org/node/1666556
   drupal_static_reset('_fe_nodequeue_get_qid_map');
+
   return $settings;
 }
 

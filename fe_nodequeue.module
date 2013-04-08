@@ -89,7 +89,7 @@ function fe_nodequeue_features_export_render($module_name = '', $data) {
         // saved and will throw override messages as a result.
         $manipulate_all_queues = array_keys(user_roles(FALSE, 'manipulate all queues'));
         $nodequeue->roles = array_diff($nodequeue->roles, $manipulate_all_queues);
-        foreach ($nodequeue->roles as $index => $rid){
+        foreach ($nodequeue->roles as $index => $rid) {
           $nodequeue->roles[$index] = $roles[$rid];
         }
         sort($nodequeue->roles);
@@ -166,13 +166,16 @@ function fe_nodequeue_features_enable_feature($module) {
 /**
  * Save a nodequeue queue.
  *
- * @param $settings
+ * @param array $settings
+ *   A nodequeue settings array.
+ *
  * @return array
+ *   The updated settings array.
  */
-function _fe_nodequeue_save_queue($settings = array()) {
+function _fe_nodequeue_save_queue(array $settings) {
   // Convert roles from names to rids.
   $roles = array_flip(user_roles());
-  foreach ((array) $settings['roles'] as $index => $role){
+  foreach ((array) $settings['roles'] as $index => $role) {
     // In case we are dealing with an old export with rids, don't do anything.
     if (is_int($role)) {
       continue;

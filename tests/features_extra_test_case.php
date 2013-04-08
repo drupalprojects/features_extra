@@ -40,7 +40,6 @@ class FeaturesExtraTestCase extends DrupalWebTestCase {
 
     // Revert component and ensure that component has reverted.
     features_revert(array('features_extra_test' => $components));
-    drupal_flush_all_caches();
     foreach ($components as $component) {
       $states = features_get_component_states(array('features_extra_test'), FALSE, TRUE);
       $this->assertTrue($states['features_extra_test'][$component] === FEATURES_DEFAULT, t('@component reverted successfully.', array('@component' => $component)));

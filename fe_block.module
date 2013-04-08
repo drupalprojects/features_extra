@@ -913,9 +913,9 @@ function fe_block_machine_name_submit($form, &$form_state) {
   // If a block id is not given, retrieve it from the database.
   if (empty($form_state['values']['bid'])) {
     $form_state['values']['bid'] = db_select('block_custom')
-       ->fields('block_custom', array('bid'))
-       ->condition('info', $form_state['values']['info'])
-       ->execute()->fetch()->bid;
+      ->fields('block_custom', array('bid'))
+      ->condition('info', $form_state['values']['info'])
+      ->execute()->fetch()->bid;
   }
   if (empty($form_state['values']['bid'])) {
     return;

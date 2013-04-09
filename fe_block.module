@@ -405,7 +405,7 @@ function _fe_block_get_blocks($theme = NULL) {
  */
 function _fe_block_get_active_themes() {
   $theme_names = array();
-  foreach (list_themes() as $machine_name => $theme) {
+  foreach (system_list('theme') as $machine_name => $theme) {
     if (!empty($theme->status)) {
       $theme_names[] = $machine_name;
     }

@@ -9,5 +9,5 @@ dependencies[] = features
 
 test_dependencies[] = block_class
 
-files[] = tests/features_extra_test_case.php
+files[] = tests/features_extra_test_case.test
 files[] = tests/fe_block.test

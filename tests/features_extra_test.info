@@ -5,6 +5,7 @@ package = Testing
 php = 5.2.4
 
 dependencies[] = block_class
+dependencies[] = blockcache_alter
 dependencies[] = fe_block
 dependencies[] = fe_nodequeue
 

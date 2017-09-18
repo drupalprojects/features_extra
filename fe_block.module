@@ -281,6 +281,10 @@ function _fe_block_theme_specific_defaults() {
     'status' => '',
     'weight' => 0,
     'region' => '',
+    'visibility' => 0,
+    'pages' => 0,
+    'title' => 0,
+    'roles' => array(),
   );
 }
 

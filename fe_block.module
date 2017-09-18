@@ -384,7 +384,7 @@ function _fe_block_get_blocks($theme = NULL) {
         $block['weight'] = 0;
       }
       // Disable blocks that are not assigned to a region in the theme.
-      if (!empty($block['region']) && $block['region'] != BLOCK_REGION_NONE && !isset($regions[$block['region']]) && $block['status'] == 1) {
+      if (!empty($block['region']) && $block['region'] != BLOCK_REGION_NONE && !isset($regions[$block['region']]) && !empty($block['status'])  && $block['status'] == 1) {
         // Disabled modules are moved into the BLOCK_REGION_NONE later so no
         // need to move the block to another region.
         $block['status'] = 0;

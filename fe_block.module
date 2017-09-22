@@ -331,8 +331,7 @@ function _fe_block_get_blocks($theme = NULL) {
   $regions = system_region_list($theme);
   // These are the blocks defined by code and modified by the database.
   $current_blocks = array();
-  // These are {block}.bid values to be kept.
-  $bids = array();
+
   $or = db_or();
   // Gather the blocks defined by modules.
   foreach (module_implements('block_info') as $module) {
@@ -367,8 +366,6 @@ function _fe_block_get_blocks($theme = NULL) {
     }
     // Blocks stored in the database override the blocks defined in code.
     $current_blocks[$block->module][$block->delta] = get_object_vars($block);
-    // Preserve this block.
-    $bids[$block->bid] = $block->bid;
   }
   drupal_alter('block_info', $current_blocks, $theme, $code_blocks);
   foreach ($current_blocks as $module => $module_blocks) {
@@ -834,7 +831,7 @@ function fe_block_boxes_features_revert($module_name = NULL) {
     }
 
     $bid = fe_block_get_bid($object->machine_name);
-    if (empty($bid) || !($box = block_custom_block_get($bid))) {
+    if (empty($bid) || !(block_custom_block_get($bid))) {
       $result = _fe_block_save_box((array) $object);
       if (!empty($result['bid'])) {
         $or = db_or()

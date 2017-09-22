@@ -67,7 +67,6 @@ function fe_profile_features_export_render($module_name, $data) {
  * Implements hook_features_revert().
  */
 function fe_profile_features_revert($module) {
-  $table = 'profile_field';
   $defaults = features_get_default('fe_profile', $module);
   if (empty($defaults)) {
     return;

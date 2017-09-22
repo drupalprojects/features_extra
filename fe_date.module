@@ -157,7 +157,7 @@ function fe_date_locale_date_format_features_export($data, &$export, $module_nam
   $pipe = array('fe_date_date_format_types' => array(), 'language' => array());
   foreach ($data as $name) {
     list($type, $langcode) = explode('::', $name . '::', 3);
-    if ($format = _fe_date_get_locale_date_format($type, $langcode)) {
+    if (_fe_date_get_locale_date_format($type, $langcode)) {
       // Add a dependency when the type already in a feature but not by use
       // or system.
       if (isset($map_date_format_types[$type]) && !in_array($map_date_format_types[$type], array('system', $module_name))) {

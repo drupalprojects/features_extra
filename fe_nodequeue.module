@@ -146,7 +146,7 @@ function fe_nodequeue_features_revert($module) {
     else {
       unset($object['qid']);
     }
-    $result = _fe_nodequeue_save_queue((array) $object);
+    _fe_nodequeue_save_queue((array) $object);
   }
 
   return TRUE;

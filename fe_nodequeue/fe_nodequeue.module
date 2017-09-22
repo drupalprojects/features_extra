@@ -69,8 +69,11 @@ function fe_nodequeue_features_export($data, &$export, $module_name = '') {
 
 /**
  * Implements hook_features_export_render().
+ *
+ * @codingStandardsIgnoreStart
  */
 function fe_nodequeue_features_export_render($module_name = '', $data) {
+  // @codingStandardsIgnoreEnd
   $code = array();
   $code[] = '  $nodequeues = array();';
   $code[] = '';
@@ -244,16 +247,16 @@ function _fe_nodequeue_get_qid_map() {
  * This is obviously not ideal due to the extra queries, but probably preferable
  * to changing current API calls.
  *
- * This is based on nodequeue_load_queue_by_name() but passes through the
- * $bypass_cache flag.
- *
- * @see nodequeue_load_queue_by_name()
- * @see http://drupal.org/node/1964144
- *
  * @param string $name
  *   The queue machine name.
  * @param bool $bypass_cache
  *   Boolean value indicating whether to bypass the cache or not.
+ *
+ *   This is based on nodequeue_load_queue_by_name() but passes through the
+ *   $bypass_cache flag.
+ *
+ * @see nodequeue_load_queue_by_name()
+ * @see http://drupal.org/node/1964144
  *
  * @return array
  *   The queue definition, or an empty array if no queue was found with the

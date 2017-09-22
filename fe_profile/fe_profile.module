@@ -24,7 +24,7 @@ function fe_profile_features_api() {
  */
 function fe_profile_features_export_options() {
   $options = array();
-  $table    = 'profile_field';
+  $table   = 'profile_field';
 
   $query = "SELECT * FROM {{$table}}";
   $fields = db_query($query);
@@ -52,7 +52,7 @@ function fe_profile_features_export($data, &$export, $module_name = '') {
  */
 function fe_profile_features_export_render($module_name, $data) {
   $items = array();
-  $table    = 'profile_field';
+  $table = 'profile_field';
 
   foreach ($data as $key) {
     $field = db_query("SELECT * FROM {{$table}} WHERE name = :profile_field_name", array(':profile_field_name' => $key))->fetchObject();
@@ -83,8 +83,11 @@ function fe_profile_features_revert($module) {
  *
  * @param array $field_data
  *   The field data to save.
+ *
+ * @codingStandardsIgnoreStart
  */
 function _fe_profile_save_field($field_data) {
+  // @codingStandardsIgnoreEnd
   if (!isset($field_data['options'])) {
     $field_data['options'] = '';
   }

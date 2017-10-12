@@ -113,7 +113,7 @@ function fe_nodequeue_features_export_render($module_name = '', $data) {
 
       $nodequeue_export = features_var_export($nodequeue, '  ');
 
-      $code[] = "  // Exported nodequeues: {$nodequeue->name}";
+      $code[] = "  // Exported nodequeues: {$nodequeue->name}.";
       $code[] = "  \$nodequeues['{$name}'] = {$nodequeue_export};";
       $code[] = "";
     }

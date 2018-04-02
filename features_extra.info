@@ -1,0 +1,4 @@
+name = Features extra
+description = Features extra - container project
+core = 7.x
+package = Features extra
